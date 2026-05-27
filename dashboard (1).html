@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Dashboard · Elías</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0e0c;--paper:#f0ede6;--cream:#e8e3d8;--warm:#d4cfc3;
+  --mid:#9a9286;--soft:#6b6560;
+  --border:1px solid #ccc8be;
+  --green:#2d5a27;--yellow:#7a5c00;--red:#8b0000;
+  --green-bg:#f0f7ef;--yellow-bg:#fffbea;--red-bg:#fff5f5;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Syne',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--ink);color:var(--paper);padding:26px 38px 22px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end;position:relative;overflow:hidden;}
+header::after{content:'';position:absolute;right:0;top:0;width:300px;height:100%;background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 40px);pointer-events:none;}
+.hd-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(240,237,230,.4);margin-bottom:5px;}
+.hd-title{font-family:'Fraunces',serif;font-size:30px;font-weight:900;line-height:1;letter-spacing:-.5px;}
+.hd-title em{font-weight:300;font-style:italic;}
+.hd-right{text-align:right;}
+.hd-date{font-family:'DM Mono',monospace;font-size:10px;color:rgba(240,237,230,.45);letter-spacing:1px;text-transform:uppercase;}
+.hd-date strong{display:block;font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--paper);letter-spacing:-.3px;margin-top:2px;}
+
+/* NAV */
+nav{background:var(--cream);border-bottom:var(--border);padding:0 38px;display:flex;overflow-x:auto;position:sticky;top:0;z-index:100;}
+.tab{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:13px 16px;cursor:pointer;border:none;background:transparent;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s;}
+.tab:hover{color:var(--ink);}
+.tab.active{color:var(--ink);border-bottom:2px solid var(--ink);}
+
+/* MAIN */
+main{padding:32px 38px;max-width:1320px;}
+.section{display:none;animation:fu .2s ease;}
+.section.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* SEC HEADER */
+.sec-hd{margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:flex-end;}
+.sec-hd h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;line-height:1;letter-spacing:-.4px;}
+.sec-hd h2 em{font-weight:300;font-style:italic;}
+.sec-hd p{font-size:12px;color:var(--mid);margin-top:3px;}
+.chip{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;padding:3px 9px;border:1px solid var(--warm);color:var(--soft);}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+
+/* CARDS */
+.card{border:var(--border);padding:18px;background:var(--paper);}
+.card.dark{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.clabel{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.3px;text-transform:uppercase;color:var(--mid);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
+.clabel::before{content:'';display:block;width:5px;height:5px;background:var(--ink);flex-shrink:0;}
+.card.dark .clabel{color:rgba(240,237,230,.45);}
+.card.dark .clabel::before{background:var(--paper);}
+
+/* STATS */
+.bnum{font-family:'Fraunces',serif;font-size:48px;font-weight:900;line-height:1;letter-spacing:-2px;}
+.nlbl{font-size:11px;color:var(--mid);margin-top:4px;}
+
+/* STATUS */
+.st{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;padding:3px 7px;white-space:nowrap;}
+.s-ok{background:var(--green-bg);color:var(--green);border:1px solid #b8d4b5;}
+.s-prog{border:1px solid var(--ink);color:var(--ink);}
+.s-pend{background:var(--ink);color:var(--paper);}
+.s-warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid #e8d080;}
+.s-crit{background:var(--red-bg);color:var(--red);border:1px solid #e8b0b0;}
+.s-off{background:var(--cream);color:var(--mid);border:1px solid var(--warm);}
+
+/* PROGRESS */
+.prog-wrap{margin-top:8px;}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--soft);margin-bottom:4px;font-family:'DM Mono',monospace;}
+.prog-track{height:4px;background:var(--cream);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--ink);border-radius:2px;transition:width .5s ease;}
+.prog-fill.warn{background:var(--yellow);}
+.prog-fill.danger{background:var(--red);}
+
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-nav h3{font-family:'Fraunces',serif;font-size:20px;font-weight:700;letter-spacing:-.3px;}
+.cal-nav button{background:none;border:var(--border);padding:6px 14px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;color:var(--ink);}
+.cal-nav button:hover{background:var(--ink);color:var(--paper);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-dname{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--mid);text-align:center;padding:6px 0;}
+.cal-cell{min-height:88px;border:1px solid var(--cream);padding:6px 7px;background:var(--paper);position:relative;vertical-align:top;cursor:pointer;transition:border-color .15s;}
+.cal-cell:hover{border-color:var(--ink);}
+.cal-cell.today{border:2px solid var(--ink);background:var(--cream);}
+.cal-cell.other-month{opacity:.35;}
+.cal-cell.weekend{background:#f7f4ee;}
+.cal-cell.weekend .cal-dnum{color:var(--mid);}
+.cal-dnum{font-family:'Fraunces',serif;font-size:17px;font-weight:700;line-height:1;margin-bottom:5px;}
+.cal-event{font-size:9.5px;line-height:1.3;padding:2px 5px;margin-bottom:2px;border-radius:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.ev-fixed{background:var(--cream);color:var(--soft);border-left:2px solid var(--mid);}
+.ev-martes{background:#fff3cd;color:#7a5c00;border-left:2px solid #c8a800;font-weight:600;}
+.ev-jueves{background:#e8f0fe;color:#1a56db;border-left:2px solid #1a56db;}
+.ev-liquidacion{background:#fce8ff;color:#7e3a8a;border-left:2px solid #a855f7;}
+.ev-spotify{background:#e8fff0;color:#1a7a3a;border-left:2px solid #1db954;}
+.ev-viernes{background:var(--green-bg);color:var(--green);border-left:2px solid var(--green);}
+.ev-user{background:var(--ink);color:var(--paper);border-left:none;cursor:pointer;}
+.ev-user.done{opacity:.4;text-decoration:line-through;}
+.ev-pub-done{background:var(--green-bg);color:var(--green);border-left:2px solid var(--green);}
+.ev-pub-plan{background:var(--yellow-bg);color:var(--yellow);border-left:2px solid var(--yellow);}
+.ev-off{background:var(--cream);color:var(--mid);font-style:italic;}
+.cal-more{font-family:'DM Mono',monospace;font-size:8px;color:var(--mid);padding:1px 0;}
+
+/* WEEK VIEW */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:18px;}
+.wday{border:var(--border);padding:11px 10px;min-height:110px;background:var(--paper);}
+.wday.today{border:2px solid var(--ink);background:var(--cream);}
+.wday.wend{background:#f7f4ee;opacity:.8;}
+.wday-name{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--mid);margin-bottom:3px;}
+.wday-num{font-family:'Fraunces',serif;font-size:20px;font-weight:900;line-height:1;margin-bottom:6px;}
+.wtask{font-size:10.5px;line-height:1.3;padding:3px 5px;margin-bottom:3px;cursor:pointer;}
+
+/* OBJETIVOS */
+.obj-item{padding:13px 15px;border:var(--border);margin-bottom:8px;display:grid;grid-template-columns:36px 1fr auto auto;gap:12px;align-items:start;}
+.obj-n{font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--cream);line-height:1;}
+.obj-b h4{font-size:13px;font-weight:700;margin-bottom:2px;}
+.obj-b p{font-size:11.5px;color:var(--soft);line-height:1.5;}
+.obj-kpi{font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);text-align:right;white-space:nowrap;padding-top:2px;}
+
+/* INPUTS */
+.fi{width:100%;border:var(--border);padding:8px 10px;font-family:'Syne',sans-serif;font-size:12.5px;background:var(--paper);color:var(--ink);outline:none;}
+.fi:focus{border-color:var(--ink);}
+select.fi{font-family:'DM Mono',monospace;font-size:11px;appearance:none;cursor:pointer;}
+textarea.fi{resize:vertical;line-height:1.6;}
+.lbl{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);margin-bottom:4px;}
+.btn{background:var(--ink);color:var(--paper);border:none;padding:9px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+.btn:hover{opacity:.8;}
+.btn-ghost{background:transparent;color:var(--ink);border:var(--border);padding:8px 14px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;cursor:pointer;}
+.btn-sm{background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);padding:2px 5px;}
+.btn-sm:hover{color:var(--ink);}
+.info{border-left:3px solid var(--ink);padding:10px 13px;background:var(--cream);font-size:12px;color:var(--soft);line-height:1.7;margin-top:10px;}
+.info strong{color:var(--ink);}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);font-weight:500;padding:8px 10px;text-align:left;border-bottom:2px solid var(--ink);}
+.tbl td{font-size:12.5px;padding:8px 10px;border-bottom:1px solid var(--cream);vertical-align:middle;line-height:1.5;}
+.tbl tr:last-child td{border-bottom:none;}
+
+/* META ADS ROW */
+.arow{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr 1.5fr 30px;border-bottom:1px solid var(--cream);}
+.arow.hd{border-bottom:2px solid var(--ink);background:var(--ink);}
+.arow.hd .ac{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--paper);font-weight:500;padding:8px 10px;}
+.ac{padding:8px 10px;font-size:12px;line-height:1.4;border-right:1px solid var(--cream);}
+.ac:last-child{border-right:none;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.8px;padding:11px 16px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,14,12,.6);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--paper);border:2px solid var(--ink);padding:24px 28px;min-width:340px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
+.modal h3{font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:var(--border);}
+
+/* OBJ TEMPLATES */
+.obj-tpl{border:var(--border);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;}
+.obj-tpl:hover{border-color:var(--ink);background:var(--cream);}
+.obj-tpl h4{font-size:12.5px;font-weight:700;margin-bottom:3px;}
+.obj-tpl p{font-size:11px;color:var(--soft);line-height:1.5;}
+
+.btab-bar{display:flex;border-bottom:var(--border);margin-bottom:16px;}
+.btab{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:10px 14px;cursor:pointer;border:none;background:transparent;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.btab.active{color:var(--ink);border-bottom:2px solid var(--ink);}
+.bsec{display:none;}.bsec.active{display:block;}
+.stat-l{font-size:11px;color:var(--mid);margin-top:4px;}
+.s-ok{background:var(--green-bg);color:var(--green);border:1px solid #b8d4b5;}
+.s-warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid #e8d080;}
+.s-crit{background:var(--red-bg);color:var(--red);border:1px solid #e8b0b0;}
+.s-prog{border:1px solid var(--ink);color:var(--ink);}
+.s-pend{background:var(--ink);color:var(--paper);}
+
+/* RESPONSIVE */
+  header,nav,main{padding-left:14px;padding-right:14px;}
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .week-grid{grid-template-columns:repeat(4,1fr);}
+  .cal-grid{grid-template-columns:repeat(7,1fr);}
+  .cal-cell{min-height:60px;}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: Add event to calendar -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <h3 id="modal-title">Agregar tarea</h3>
+    <div style="margin-bottom:10px;"><label class="lbl">Fecha</label><input type="date" id="m-fecha" class="fi"></div>
+    <div style="margin-bottom:10px;"><label class="lbl">Descripción</label><input type="text" id="m-texto" class="fi" placeholder="Ej: Carrusel salas · Story Martes de Mayoral"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div><label class="lbl">Tipo</label>
+        <select id="m-tipo" class="fi">
+          <option value="contenido">Contenido</option><option value="ads">Meta Ads</option>
+          <option value="web">Web</option><option value="solicitud">Solicitud</option>
+          <option value="reunion">Reunión</option><option value="pub-plan">Publicación planeada</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div><label class="lbl">Estado</label>
+        <select id="m-estado" class="fi">
+          <option value="pendiente">Pendiente</option><option value="programado">Programado (fines de semana)</option><option value="done">Hecho</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="saveModalEvent()" style="flex:1;">Guardar</button>
+      <button class="btn-ghost" onclick="closeModalDirect()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div>
+    <div class="hd-eyebrow">Dashboard Personal · Muebles Mayoral</div>
+    <div class="hd-title">Mi área, <em>mi control</em></div>
+  </div>
+  <div class="hd-right">
+    <div class="hd-date">Hoy<strong id="hd-hoy"></strong></div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" onclick="showTab('hoy',this)">Hoy &amp; Semana</button>
+  <button class="tab" onclick="showTab('calendario',this)">Calendario</button>
+  <button class="tab" onclick="showTab('objetivos',this)">Objetivos</button>
+  <button class="tab" onclick="showTab('pendientes',this)">Pendientes</button>
+  <button class="tab" onclick="showTab('publicaciones',this)">Publicaciones</button>
+  <button class="tab" onclick="showTab('metaads',this)">Meta Ads</button>
+  <button class="tab" onclick="showTab('inventario',this)">Inventario</button>
+  <button class="tab" onclick="showTab('registro',this)">Registro Silencioso</button>
+  <button class="tab" onclick="showTab('cierre',this)">Cierre de Mes</button>
+</nav>
+
+<main>
+
+<!-- ══ HOY & SEMANA ══ -->
+<section class="section active" id="hoy">
+  <div class="sec-hd">
+    <div><h2>Hoy <em>&amp; Esta Semana</em></h2><p>Tu panorama inmediato.</p></div>
+    <span class="chip" id="hoy-label"></span>
+  </div>
+  <div class="g4" style="margin-bottom:20px;">
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Pendientes activos</div><div class="bnum" id="q-pend">0</div><div class="nlbl">tareas sin hacer</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Publicaciones hoy</div><div class="bnum" id="q-hoy-pub">0</div><div class="nlbl">registradas hoy</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Objetivos logrados</div><div class="bnum" id="q-obj-ok" style="color:var(--green);">0</div><div class="nlbl">de <span id="q-obj-total">0</span> este mes</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Solicitudes pendientes</div><div class="bnum" id="q-sol-pend" style="color:var(--yellow);">0</div><div class="nlbl">sin completar</div></div>
+  </div>
+
+  <!-- WEEK -->
+  <div class="card" style="margin-bottom:18px;">
+    <div class="clabel" style="margin-bottom:14px;">Próximos 7 días <span style="margin-left:8px;font-size:9px;color:var(--soft);">— Click en cualquier día para agregar tarea</span></div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+
+  <!-- TAREAS FIJAS + URGENTES -->
+  <div class="g2">
+    <div class="card">
+      <div class="clabel">Checklist de hoy</div>
+      <div id="checklist-hoy"></div>
+    </div>
+    <div class="card">
+      <div class="clabel">Tareas urgentes o por vencer</div>
+      <div id="urgentes-hoy"><div style="font-size:12px;color:var(--mid);font-family:'DM Mono',monospace;padding:10px 0;">Sin urgencias detectadas.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CALENDARIO ══ -->
+<section class="section" id="calendario">
+  <div class="sec-hd">
+    <div><h2>Calendario <em>Mensual</em></h2><p>Parrilla completa con recurrencias automáticas, publicaciones y tareas propias.</p></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <span id="cal-legend-martes" style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#fff3cd;border-left:2px solid #c8a800;"></span> Martes Mayoral</span>
+      <span id="cal-legend-jue" style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#e8f0fe;border-left:2px solid #1a56db;"></span> Preparación</span>
+      <span id="cal-legend-liq" style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#fce8ff;border-left:2px solid #a855f7;"></span> Liquidación</span>
+      <span id="cal-legend-spt" style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#e8fff0;border-left:2px solid #1db954;"></span> Spotify</span>
+    </div>
+  </div>
+  <div class="cal-nav">
+    <button onclick="changeMonth(-1)">← Anterior</button>
+    <h3 id="cal-title"></h3>
+    <button onclick="changeMonth(1)">Siguiente →</button>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="info" style="margin-top:12px;"><strong>Click en cualquier día</strong> para agregar una tarea o publicación. Las recurrencias se generan automáticamente. En los días pasados verás el <strong>% del checklist completado</strong> — verde = día completo, amarillo = parcial, rojo = sin avance registrado. Sábado y domingo aparecen como no laborables pero puedes marcar que dejaste contenido programado.</div>
+</section>
+
+<!-- ══ OBJETIVOS ══ -->
+<section class="section" id="objetivos">
+  <div class="sec-hd">
+    <div><h2>Objetivos <em>del Mes</em></h2><p>Qué quieres lograr, cómo se mide y qué acciones lo harán posible.</p></div>
+    <button class="btn-ghost" onclick="document.getElementById('modal-tpl').classList.toggle('open')">+ Desde plantilla</button>
+  </div>
+
+  <!-- MODAL PLANTILLAS -->
+  <div id="modal-tpl" style="display:none;border:2px solid var(--ink);padding:20px;margin-bottom:16px;background:var(--cream);">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mid);margin-bottom:12px;">Plantillas de objetivos — elige uno para pre-llenar el formulario</div>
+    <div class="g2">
+      <div class="obj-tpl" onclick="fillObjTemplate('consistencia')"><h4>Consistencia de publicación</h4><p>Publicar X posts/semana en Instagram y Facebook. Se mide por publicaciones realizadas vs planeadas al cierre del mes.</p></div>
+      <div class="obj-tpl" onclick="fillObjTemplate('ventas')"><h4>Apoyar ventas con Meta Ads</h4><p>Generar X mensajes en WhatsApp durante el mes con un costo por mensaje menor a $Y MXN.</p></div>
+      <div class="obj-tpl" onclick="fillObjTemplate('temporada')"><h4>Campaña de temporada</h4><p>Ejecutar campaña de [festividad/promo] con contenido orgánico y pagado alineados, del [fecha] al [fecha].</p></div>
+      <div class="obj-tpl" onclick="fillObjTemplate('imagen')"><h4>Imagen de tienda al día</h4><p>Revisar y actualizar lonas/viniles en todas las sucursales antes del [fecha]. Cambiar materiales con más de X meses o contenido vencido.</p></div>
+      <div class="obj-tpl" onclick="fillObjTemplate('martes')"><h4>Ejecutar Martes de Mayoral sin fallas</h4><p>Publicar los 4 Martes de Mayoral del mes con anticipación completa (vie–lun) y sin retrasos en la info de Monse.</p></div>
+      <div class="obj-tpl" onclick="fillObjTemplate('web')"><h4>Mantener página web actualizada</h4><p>Revisar y actualizar precios, inventario y promociones en mueblesmayoral.com cada semana del mes.</p></div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-bottom:18px;">
+    <div class="card dark" style="text-align:center;"><div class="clabel" style="justify-content:center;">Logrados</div><div class="bnum" id="obj-log">0</div><div class="nlbl" style="color:rgba(240,237,230,.4);">completados</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">En progreso</div><div class="bnum" id="obj-prog" style="color:var(--yellow);">0</div><div class="nlbl">en proceso</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Sin lograr</div><div class="bnum" id="obj-pend" style="color:var(--red);">0</div><div class="nlbl">por atender</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="clabel">Nuevo objetivo</div>
+    <div style="display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;">
+      <div><label class="lbl">Objetivo</label><input type="text" id="ob-txt" class="fi" placeholder="Ej: Publicar 20 posts en Instagram este mes"></div>
+      <div><label class="lbl">KPI / Cómo se mide</label><input type="text" id="ob-kpi" class="fi" placeholder="Ej: 20 posts publicados"></div>
+      <div><label class="lbl">Área</label><select id="ob-area" class="fi"><option>Contenido orgánico</option><option>Meta Ads</option><option>Página web</option><option>Estrategia</option><option>Impresos</option><option>Otro</option></select></div>
+      <div><label class="lbl">Estado</label><select id="ob-est" class="fi"><option>Sin iniciar</option><option>En progreso</option><option>Logrado</option></select></div>
+      <button class="btn" onclick="addObjetivo()">+</button>
+    </div>
+    <div><label class="lbl">Acciones clave para lograrlo</label><input type="text" id="ob-acc" class="fi" placeholder="Ej: 4 posts/semana · 1 carrusel quincenal · historias diarias"></div>
+  </div>
+  <div id="obj-list"><div style="padding:22px;text-align:center;border:var(--border);font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);">Define tus objetivos antes de empezar el mes.</div></div>
+</section>
+
+<!-- ══ PUBLICACIONES ══ -->
+<section class="section" id="publicaciones">
+  <div class="sec-hd"><div><h2>Publicaciones <em>del Mes</em></h2><p>Qué planeaste, qué publicaste y cómo va el cumplimiento.</p></div><span class="chip" id="pub-mes"></span></div>
+  <div class="g4" style="margin-bottom:18px;">
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Meta mensual</div><div class="bnum" id="p-meta-n">0</div><div class="nlbl">planeadas</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Publicadas</div><div class="bnum" id="p-done-n" style="color:var(--green);">0</div><div class="nlbl">realizadas</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Pendientes</div><div class="bnum" id="p-pend-n" style="color:var(--yellow);">0</div><div class="nlbl">por publicar</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Cumplimiento</div><div class="bnum" id="p-pct">—</div><div class="nlbl">del plan</div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="clabel">Avance del mes</div>
+    <div class="prog-wrap"><div class="prog-lbl"><span>Publicaciones realizadas</span><span id="p-prog-lbl">0 / 0</span></div><div class="prog-track"><div class="prog-fill" id="p-prog-fill" style="width:0%"></div></div></div>
+    <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
+      <label class="lbl" style="margin:0;white-space:nowrap;">Meta del mes:</label>
+      <input type="number" id="p-meta" class="fi" style="max-width:100px;" placeholder="Ej: 25" oninput="renderPubs()">
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="clabel">Registrar publicación</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">
+      <div><label class="lbl">Descripción</label><input type="text" id="p-desc" class="fi" placeholder="Ej: Carrusel sala Alexis"></div>
+      <div><label class="lbl">Tipo</label><select id="p-tipo" class="fi"><option>Post Feed</option><option>Carrusel</option><option>Story</option><option>Martes de Mayoral</option><option>Pinterest</option><option>Blog</option></select></div>
+      <div><label class="lbl">Canal</label><select id="p-canal" class="fi"><option>Instagram</option><option>Facebook</option><option>Ambos</option><option>Pinterest</option><option>Web</option></select></div>
+      <div><label class="lbl">Pilar</label><select id="p-pilar" class="fi"><option>Inspiración</option><option>Producto con Contexto</option><option>Prueba Social</option><option>Marca Humana</option><option>Promoción</option></select></div>
+      <div><label class="lbl">Fecha</label><input type="date" id="p-fecha" class="fi"></div>
+      <button class="btn" onclick="addPub()">+</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">
+      <div><label class="lbl">Estado</label><select id="p-est" class="fi"><option>Publicado</option><option>Programado</option><option>Pendiente</option></select></div>
+      <div><label class="lbl">Alcance (opcional)</label><input type="number" id="p-alcance" class="fi" placeholder="Ej: 1200"></div>
+      <div><label class="lbl">Interacciones (opcional)</label><input type="number" id="p-inter" class="fi" placeholder="Ej: 45"></div>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="tbl">
+      <thead><tr><th>Descripción</th><th>Tipo</th><th>Canal</th><th>Pilar</th><th>Fecha</th><th>Estado</th><th>Alcance</th><th>Interact.</th><th></th></tr></thead>
+      <tbody id="p-body"><tr><td colspan="9" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Sin publicaciones registradas.</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ META ADS ══ -->
+<section class="section" id="metaads">
+  <div class="sec-hd"><div><h2>Meta Ads <em>— Control de Gasto</em></h2><p>Seguimiento diario de inversión y resultados.</p></div><span class="chip" id="ads-mes"></span></div>
+  <div class="g4" style="margin-bottom:18px;">
+    <div class="card dark" style="text-align:center;"><div class="clabel" style="justify-content:center;">Gasto total</div><div class="bnum" id="a-total">$0</div><div class="nlbl" style="color:rgba(240,237,230,.4);">MXN acumulado</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Presupuesto</div><div class="bnum" id="a-budget-n">$—</div><div class="nlbl">MXN asignado</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Mensajes WA</div><div class="bnum" id="a-msgs" style="color:var(--green);">0</div><div class="nlbl">recibidos</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Costo por mensaje</div><div class="bnum" id="a-cpm">$—</div><div class="nlbl">MXN promedio</div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="clabel">Gasto vs presupuesto</div>
+    <div class="prog-wrap"><div class="prog-lbl"><span>Gastado</span><span id="a-prog-lbl">$0 / $0</span></div><div class="prog-track"><div class="prog-fill" id="a-prog-fill" style="width:0%"></div></div></div>
+    <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
+      <label class="lbl" style="margin:0;white-space:nowrap;">Presupuesto mensual MXN:</label>
+      <input type="number" id="a-budget" class="fi" style="max-width:140px;" placeholder="Ej: 18000" oninput="renderAds()">
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="clabel">Registrar día de campaña</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">
+      <div><label class="lbl">Fecha</label><input type="date" id="a-fecha" class="fi"></div>
+      <div><label class="lbl">Conjunto</label><select id="a-conj" class="fi"><option>Sofá Cama Alexis</option><option>Salas</option><option>Recámaras</option><option>Comedores</option><option>Martes de Mayoral</option><option>Otro</option></select></div>
+      <div><label class="lbl">Gasto día (MXN)</label><input type="number" id="a-gasto" class="fi" placeholder="600" oninput="prevCPM()"></div>
+      <div><label class="lbl">Mensajes recibidos</label><input type="number" id="a-msgs-inp" class="fi" placeholder="8" oninput="prevCPM()"></div>
+      <div><label class="lbl">CPM est.</label><div id="a-cpm-prev" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;padding:8px 0;color:var(--soft);">—</div></div>
+      <button class="btn" onclick="addAds()">+</button>
+    </div>
+    <div style="margin-top:10px;"><label class="lbl">Observación / optimización</label><input type="text" id="a-obs" class="fi" placeholder="Ej: Pausé Alexis por bajo rendimiento · Subí presupuesto en Salas"></div>
+  </div>
+  <div style="overflow-x:auto;">
+    <div class="arow hd"><div class="ac">Conjunto</div><div class="ac">Fecha</div><div class="ac">Gasto</div><div class="ac">Mensajes</div><div class="ac">CPM</div><div class="ac">Observación</div><div class="ac"></div></div>
+    <div id="a-body"><div style="padding:20px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);">Sin registros.</div></div>
+  </div>
+</section>
+
+<!-- ══ PENDIENTES ══ -->
+<section class="section" id="pendientes">
+  <div class="sec-hd"><div><h2>Control de <em>Pendientes</em></h2><p>Tareas propias y solicitudes. Todo en un solo lugar.</p></div><span class="chip" id="pend-mes"></span></div>
+  <div class="g3" style="margin-bottom:18px;">
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Pendientes</div><div class="bnum" id="pn-pend" style="color:var(--yellow);">0</div><div class="stat-l">por atender</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">En Progreso</div><div class="bnum" id="pn-prog">0</div><div class="stat-l">en proceso</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Completados</div><div class="bnum" id="pn-done" style="color:var(--green);">0</div><div class="stat-l">este mes</div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="clabel">Nueva tarea</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">
+      <div><label class="lbl">Descripción</label><input type="text" id="pn-desc" class="fi" placeholder="Ej: Carrusel sala Alexis para Instagram"></div>
+      <div><label class="lbl">Categoría</label>
+        <select id="pn-cat" class="fi"><option>Contenido estático</option><option>Meta Ads</option><option>Campaña Pagada</option><option>Página web</option><option>Diseño publicitario</option><option>Fotografía</option><option>Estrategia</option><option>Blog</option><option>Spotify</option><option>Pinterest</option><option>Imprenta</option><option>Cartelería</option><option>Solicitud externa</option><option>Otro</option></select>
+      </div>
+      <div><label class="lbl">Prioridad</label>
+        <select id="pn-prio" class="fi"><option>Normal</option><option>Alta</option><option>Baja</option></select>
+      </div>
+      <div><label class="lbl">Fecha de entrega</label><input type="date" id="pn-fecha" class="fi"></div>
+      <button class="btn" onclick="addPendiente()">+</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="tbl">
+      <thead><tr><th>Tarea</th><th>Categoría</th><th>Prioridad</th><th>Entrega</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="pn-body"><tr><td colspan="6" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Sin pendientes. Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ INVENTARIO ══ -->
+<section class="section" id="inventario">
+  <div class="sec-hd"><div><h2>Inventario <em>de Impresos</em></h2><p>Stock, historial de pedidos y registro de lonas y viniles.</p></div><span class="chip">Control de materiales</span></div>
+  <div class="btab-bar" style="margin-bottom:18px;">
+    <button class="btab active" onclick="showInvTab('inv-stock',this)">Stock Actual</button>
+    <button class="btab" onclick="showInvTab('inv-pedidos',this)">Historial de Pedidos</button>
+    <button class="btab" onclick="showInvTab('inv-lonas',this)">Lonas &amp; Viniles</button>
+  </div>
+
+  <!-- STOCK -->
+  <div class="bsec active" id="inv-stock">
+    <div class="g3" style="margin-bottom:16px;">
+      <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">✓ Ok</div><div class="bnum" id="sk-ok" style="color:var(--green);">0</div><div class="stat-l">materiales</div></div>
+      <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">⚠ Reabastecer</div><div class="bnum" id="sk-warn" style="color:var(--yellow);">0</div><div class="stat-l">por pedir pronto</div></div>
+      <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">⚑ Crítico</div><div class="bnum" id="sk-crit" style="color:var(--red);">0</div><div class="stat-l">pedir ya</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="clabel">Agregar / actualizar material</div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 0.8fr 0.8fr 0.8fr 0.8fr auto;gap:10px;align-items:end;">
+        <div><label class="lbl">Material</label><select id="sk-mat" class="fi"><option>Tarjetas de presentación</option><option>Etiquetas de cojines</option><option>Notas de seguimiento</option><option>Etiquetas de muebles</option><option>Otro</option></select></div>
+        <div><label class="lbl">Vendedor / Sucursal</label><input type="text" id="sk-quien" class="fi" placeholder="Ej: Carlos / Suc. Zapopan"></div>
+        <div><label class="lbl">Stock actual</label><input type="number" id="sk-actual" class="fi" placeholder="80" min="0"></div>
+        <div><label class="lbl">Punto reorden</label><input type="number" id="sk-reorden" class="fi" placeholder="100" min="0"></div>
+        <div><label class="lbl">Mínimo crítico</label><input type="number" id="sk-critico" class="fi" placeholder="50" min="0"></div>
+        <div><label class="lbl">Unidad</label><select id="sk-unidad" class="fi"><option>piezas</option><option>juegos</option><option>rollos</option><option>paquetes</option></select></div>
+        <button class="btn" onclick="addStock()">+</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl"><thead><tr><th>Material</th><th>Vendedor / Sucursal</th><th>Stock actual</th><th>Reorden</th><th>Mínimo crítico</th><th>Estado</th><th>Actualización</th><th></th></tr></thead>
+      <tbody id="sk-body"><tr><td colspan="8" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Cargando...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- PEDIDOS -->
+  <div class="bsec" id="inv-pedidos">
+    <div class="card" style="margin-bottom:14px;">
+      <div class="clabel">Registrar pedido</div>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 0.7fr 0.7fr 1fr 1fr auto;gap:10px;align-items:end;">
+        <div><label class="lbl">Material</label><select id="hp-mat" class="fi"><option>Tarjetas de presentación</option><option>Etiquetas de cojines</option><option>Notas de seguimiento</option><option>Etiquetas de muebles</option><option>Otro</option></select></div>
+        <div><label class="lbl">Destino</label><input type="text" id="hp-dest" class="fi" placeholder="Ej: Carlos / Todas las sucursales"></div>
+        <div><label class="lbl">Cantidad</label><input type="text" id="hp-cant" class="fi" placeholder="1,000"></div>
+        <div><label class="lbl">Proveedor</label><select id="hp-prov" class="fi"><option>Alexander</option><option>Copitek</option><option>Color and Print</option><option>Otro</option></select></div>
+        <div><label class="lbl">Fecha pedido</label><input type="date" id="hp-fecha" class="fi"></div>
+        <div><label class="lbl">Entrega real</label><input type="date" id="hp-entrega" class="fi"></div>
+        <button class="btn" onclick="addPedido()">+</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">
+        <div><label class="lbl">Costo total (MXN)</label><input type="text" id="hp-costo" class="fi" placeholder="$850"></div>
+        <div><label class="lbl">Estado</label><select id="hp-estado" class="fi"><option>En cotización</option><option>En aprobación (Finanzas)</option><option>En producción</option><option>Entregado</option></select></div>
+        <div><label class="lbl">Observaciones</label><input type="text" id="hp-obs" class="fi" placeholder="Ej: Pedido de urgencia"></div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl"><thead><tr><th>Material</th><th>Destino</th><th>Cantidad</th><th>Proveedor</th><th>Fecha pedido</th><th>Entrega</th><th>Costo</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="hp-body"><tr><td colspan="9" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Cargando...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- LONAS -->
+  <div class="bsec" id="inv-lonas">
+    <div class="g3" style="margin-bottom:14px;">
+      <div class="card" style="border-left:3px solid var(--ink);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Exterior · Sol directo</div><div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;">6–8 <span style="font-size:13px;font-weight:400;">meses</span></div><div style="font-size:11px;color:var(--soft);margin-top:4px;">Máxima degradación UV</div></div>
+      <div class="card" style="border-left:3px solid var(--mid);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Exterior · Con sombra</div><div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;">10–14 <span style="font-size:13px;font-weight:400;">meses</span></div><div style="font-size:11px;color:var(--soft);margin-top:4px;">Menor exposición UV</div></div>
+      <div class="card" style="border-left:3px solid var(--cream);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Interior</div><div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;">18–30 <span style="font-size:13px;font-weight:400;">meses</span></div><div style="font-size:11px;color:var(--soft);margin-top:4px;">Cambio por contenido, no deterioro</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="clabel">Registrar lona o vinil</div>
+      <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label class="lbl">Descripción</label><input type="text" id="lv-desc" class="fi" placeholder="Ej: Lona fachada principal"></div>
+        <div><label class="lbl">Sucursal</label><input type="text" id="lv-suc" class="fi" placeholder="Ej: Zapopan"></div>
+        <div><label class="lbl">Exposición</label><select id="lv-expo" class="fi" onchange="autoRevDate()"><option value="exterior-sol">Exterior · Sol directo</option><option value="exterior-sombra">Exterior · Con sombra</option><option value="interior">Interior</option></select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label class="lbl">Tipo</label><select id="lv-tipo" class="fi"><option>Lona</option><option>Vinil</option><option>Estireno</option><option>Acrílico</option><option>Trovicel</option><option>Otro</option></select></div>
+        <div><label class="lbl">Medidas</label><input type="text" id="lv-medidas" class="fi" placeholder="3m × 2m"></div>
+        <div><label class="lbl">Proveedor</label><select id="lv-prov" class="fi"><option>Alexander</option><option>Copitek</option><option>Color and Print</option><option>Otro</option></select></div>
+        <div><label class="lbl">Costo (MXN)</label><input type="text" id="lv-costo" class="fi" placeholder="$1,200"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label class="lbl">Fecha instalación</label><input type="date" id="lv-inst" class="fi" onchange="autoRevDate()"></div>
+        <div><label class="lbl">Revisión estimada</label><input type="date" id="lv-rev" class="fi"><p style="font-size:10px;color:var(--mid);margin-top:2px;">Calculada automáticamente</p></div>
+        <div><label class="lbl">Estado físico</label><select id="lv-estado" class="fi"><option>Bueno</option><option>Desgastado</option><option>Dañado</option><option>Reemplazado</option></select></div>
+        <div><label class="lbl">Contenido</label><select id="lv-contenido" class="fi"><option value="promo-precio">Promo con precio</option><option value="producto-activo">Producto activo</option><option value="marca-imagen">Imagen de marca</option><option value="temporada">Temporada</option></select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;">
+        <div><label class="lbl">Vigencia del contenido</label><input type="date" id="lv-vigencia" class="fi"></div>
+        <div><label class="lbl">Producto activo</label><select id="lv-prod-activo" class="fi"><option>Sí — en catálogo</option><option>No — descontinuado</option><option>Por confirmar</option></select></div>
+        <div><label class="lbl">Observaciones</label><input type="text" id="lv-obs" class="fi" placeholder="Ej: Parche de precio aplicado"></div>
+        <button class="btn" onclick="addLona()">+</button>
+      </div>
+    </div>
+    <div id="lv-alertas" style="margin-bottom:14px;"></div>
+    <div style="overflow-x:auto;">
+      <table class="tbl"><thead><tr><th>Material</th><th>Sucursal</th><th>Exposición</th><th>Medidas</th><th>Instalación</th><th>Revisión</th><th>Vigencia</th><th>Estado</th><th>Alerta</th><th></th></tr></thead>
+      <tbody id="lv-body"><tr><td colspan="10" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Cargando...</td></tr></tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REGISTRO SILENCIOSO ══ -->
+<section class="section" id="registro">
+  <div class="sec-hd"><div><h2>Registro <em>Silencioso</em></h2><p>Iniciativas que probé. Solo para mí — hasta que decida mostrarlo.</p></div><span class="chip">Privado</span></div>
+  <div class="card" style="margin-bottom:18px;">
+    <div class="clabel">Nueva iniciativa</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div><label class="lbl">Mes</label><input type="text" id="rs-mes" class="fi" placeholder="Ej: Mayo"></div>
+      <div><label class="lbl">Resultado clave</label><input type="text" id="rs-res" class="fi" placeholder="Ej: +18% alcance orgánico"></div>
+    </div>
+    <div style="margin-bottom:10px;"><label class="lbl">¿Qué probé?</label><input type="text" id="rs-tit" class="fi" placeholder="Describe la iniciativa en una línea"></div>
+    <div style="margin-bottom:14px;"><label class="lbl">Cómo la ejecuté / qué aprendí</label><textarea id="rs-nota" rows="3" class="fi" placeholder="Detalla lo que hiciste diferente y qué observaste…"></textarea></div>
+    <button class="btn" onclick="addRegistro()">Registrar Iniciativa</button>
+  </div>
+  <div id="rs-list"><div style="padding:20px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);">Cargando...</div></div>
+  <div style="margin-top:32px;border-top:2px solid var(--ink);padding-top:16px;display:flex;justify-content:space-between;align-items:flex-end;">
+    <div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Elías</div><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);margin-top:4px;">Contenido Digital &amp; Social Media · Muebles Mayoral</div></div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);" id="rs-fecha"></div>
+  </div>
+</section>
+
+<!-- ══ CIERRE DE MES ══ -->
+<section class="section" id="cierre">
+  <div class="sec-hd"><div><h2>Cierre <em>de Mes</em></h2><p>Resumen ejecutivo para tu rendición de cuentas mensual.</p></div><span class="chip" id="cierre-mes"></span></div>
+  <div class="g2" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="clabel">Resumen automático</div>
+      <div id="cierre-auto" style="font-size:13px;line-height:2.2;color:var(--soft);">Se construye con los datos de las demás secciones.</div>
+    </div>
+    <div class="card">
+      <div class="clabel">Narrativa para la presentación</div>
+      <div style="margin-bottom:10px;"><label class="lbl">¿Qué funcionó bien?</label><textarea id="c-bien" rows="3" class="fi" placeholder="Ej: La campaña de salas generó 40 mensajes a $15 por mensaje."></textarea></div>
+      <div style="margin-bottom:10px;"><label class="lbl">¿Qué no funcionó y por qué?</label><textarea id="c-mal" rows="3" class="fi" placeholder="Ej: El conjunto Recámaras tuvo bajo rendimiento por creativos débiles."></textarea></div>
+      <div style="margin-bottom:12px;"><label class="lbl">¿Qué se ajusta el próximo mes?</label><textarea id="c-ajuste" rows="3" class="fi" placeholder="Ej: Nuevos creativos en Recámaras · Probar video en Salas."></textarea></div>
+      <button class="btn" style="width:100%;" onclick="generarCierre()">Generar Resumen de Cierre</button>
+    </div>
+  </div>
+  <div id="cierre-output" style="display:none;">
+    <div style="border:2px solid var(--ink);padding:26px 30px;background:var(--paper);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--ink);">
+        <div><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mid);margin-bottom:4px;">Rendición de Cuentas</div><div style="font-family:'Fraunces',serif;font-size:21px;font-weight:700;" id="cierre-titulo"></div></div>
+        <div style="text-align:right;font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">Contenido Digital &amp; Social Media<br>Muebles Mayoral</div>
+      </div>
+      <div id="cierre-cuerpo"></div>
+      <div style="margin-top:18px;padding-top:14px;border-top:var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:700;">Elías</div>
+        <button onclick="copiarCierre()" class="btn-ghost">Copiar resumen</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script>
+// ── SUPABASE ──
+const SUPABASE_URL='https://icynathbxulsmzvkgzse.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeW5hdGhieHVsc216dmtnenNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTUzODMsImV4cCI6MjA5NTQ5MTM4M30.W9AsPH2rzm1aZaNsKiYzcrscJ6Be0jlZq2tW11GpVmY';
+const HDR={'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'};
+
+async function dbGet(table,params=''){const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&order=created_at.desc`,{headers:HDR});return r.json();}
+async function dbInsert(table,data){const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{method:'POST',headers:HDR,body:JSON.stringify(data)});return r.json();}
+async function dbUpdate(table,id,data){const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:HDR,body:JSON.stringify(data)});return r.json();}
+async function dbDelete(table,id){await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:HDR});}
+
+// ── INV TAB ──
+function showInvTab(id,el){
+  document.querySelectorAll('#inventario .bsec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('#inventario .btab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── PENDIENTES ──
+async function loadPendientes(){
+  const data=await dbGet('pendientes');
+  if(!Array.isArray(data)){return;}
+  const today=now.toISOString().split('T')[0];
+  const stMap={'Pendiente':'s-pend','En Progreso':'s-prog','En Revisión':'s-warn','Completado':'s-ok'};
+  document.getElementById('pn-pend').textContent=data.filter(p=>p.estado==='Pendiente').length;
+  document.getElementById('pn-prog').textContent=data.filter(p=>p.estado==='En Progreso'||p.estado==='En Revisión').length;
+  document.getElementById('pn-done').textContent=data.filter(p=>p.estado==='Completado').length;
+  const body=document.getElementById('pn-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin pendientes registrados.</td></tr>';return;}
+  body.innerHTML=data.map(p=>{
+    const venc=p.fecha_entrega&&p.fecha_entrega<today&&p.estado!=='Completado';
+    const prioIcon=p.prio==='Alta'?'▲ ':p.prio==='Baja'?'▽ ':'';
+    return `<tr>
+      <td style="font-weight:600;max-width:220px;">${p.descripcion}</td>
+      <td style="font-size:11.5px;color:var(--soft);">${p.cat||'—'}</td>
+      <td style="font-size:12px;">${prioIcon}${p.prio||'Normal'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;${venc?'color:var(--red);font-weight:700;':''}">${p.fecha_entrega||'—'}${venc?' ⚑':''}</td>
+      <td><select onchange="updatePendiente(${p.id},this.value)" style="border:var(--border);background:var(--paper);font-family:'DM Mono',monospace;font-size:9px;padding:3px 6px;cursor:pointer;appearance:none;">
+        <option ${p.estado==='Pendiente'?'selected':''}>Pendiente</option>
+        <option ${p.estado==='En Progreso'?'selected':''}>En Progreso</option>
+        <option ${p.estado==='En Revisión'?'selected':''}>En Revisión</option>
+        <option ${p.estado==='Completado'?'selected':''}>Completado</option>
+      </select></td>
+      <td><button class="btn-sm" onclick="deletePendiente(${p.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+async function addPendiente(){
+  const desc=document.getElementById('pn-desc').value.trim();
+  if(!desc){alert('Agrega una descripción.');return;}
+  await dbInsert('pendientes',{descripcion:desc,cat:document.getElementById('pn-cat').value,prio:document.getElementById('pn-prio').value,fecha_entrega:document.getElementById('pn-fecha').value||null,estado:'Pendiente',tipo:'Manual'});
+  document.getElementById('pn-desc').value='';
+  loadPendientes();toast('✓ Pendiente guardado');
+}
+async function updatePendiente(id,estado){await dbUpdate('pendientes',id,{estado});loadPendientes();}
+async function deletePendiente(id){await dbDelete('pendientes',id);loadPendientes();}
+
+// ── STOCK ──
+async function loadStock(){
+  const data=await dbGet('stock');
+  if(!Array.isArray(data))return;
+  const ok=data.filter(s=>s.actual>s.reorden).length;
+  const warn=data.filter(s=>s.actual<=s.reorden&&s.actual>s.critico).length;
+  const crit=data.filter(s=>s.actual<=s.critico).length;
+  document.getElementById('sk-ok').textContent=ok;
+  document.getElementById('sk-warn').textContent=warn;
+  document.getElementById('sk-crit').textContent=crit;
+  const body=document.getElementById('sk-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin materiales registrados.</td></tr>';return;}
+  body.innerHTML=data.map(s=>{
+    const estLabel=s.actual<=s.critico?'⚑ Crítico':s.actual<=s.reorden?'⚠ Reabastecer':'✓ Ok';
+    const estCls=s.actual<=s.critico?'s-crit':s.actual<=s.reorden?'s-warn':'s-ok';
+    const col=s.actual<=s.critico?'var(--red)':s.actual<=s.reorden?'var(--yellow)':'var(--green)';
+    return `<tr>
+      <td style="font-weight:600;">${s.material}</td>
+      <td>${s.quien||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${col};">${s.actual} <span style="font-size:10px;font-weight:400;color:var(--mid);">${s.unidad}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--soft);">${s.reorden}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--soft);">${s.critico}</td>
+      <td><span class="st ${estCls}">${estLabel}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${s.fecha_actualizacion||'—'}</td>
+      <td><button class="btn-sm" onclick="deleteStock(${s.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+async function addStock(){
+  const mat=document.getElementById('sk-mat').value;
+  const actual=parseFloat(document.getElementById('sk-actual').value);
+  if(isNaN(actual)){alert('Ingresa el stock actual.');return;}
+  await dbInsert('stock',{material:mat,quien:document.getElementById('sk-quien').value,actual,reorden:parseFloat(document.getElementById('sk-reorden').value)||0,critico:parseFloat(document.getElementById('sk-critico').value)||0,unidad:document.getElementById('sk-unidad').value,fecha_actualizacion:now.toISOString().split('T')[0]});
+  ['sk-quien','sk-actual','sk-reorden','sk-critico'].forEach(id=>document.getElementById(id).value='');
+  loadStock();toast('✓ Stock guardado');
+}
+async function deleteStock(id){await dbDelete('stock',id);loadStock();}
+
+// ── PEDIDOS ──
+async function loadPedidos(){
+  const data=await dbGet('pedidos');
+  if(!Array.isArray(data))return;
+  const body=document.getElementById('hp-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin pedidos registrados.</td></tr>';return;}
+  const stMap={'En cotización':'s-pend','En aprobación (Finanzas)':'s-warn','En producción':'s-prog','Entregado':'s-ok'};
+  body.innerHTML=data.map(p=>`<tr>
+    <td style="font-weight:600;">${p.material}</td>
+    <td style="font-size:12px;">${p.destino||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.cantidad||'—'}</td>
+    <td style="font-size:12px;">${p.proveedor||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${p.fecha_pedido||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${p.fecha_entrega||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.costo||'—'}</td>
+    <td><span class="st ${stMap[p.estado]||'s-pend'}">${p.estado}</span></td>
+    <td><button class="btn-sm" onclick="deletePedido(${p.id})">✕</button></td>
+  </tr>`).join('');
+}
+async function addPedido(){
+  const dest=document.getElementById('hp-dest').value.trim();
+  const cant=document.getElementById('hp-cant').value.trim();
+  if(!dest||!cant){alert('Agrega destino y cantidad.');return;}
+  await dbInsert('pedidos',{material:document.getElementById('hp-mat').value,destino:dest,cantidad:cant,proveedor:document.getElementById('hp-prov').value,fecha_pedido:document.getElementById('hp-fecha').value||null,fecha_entrega:document.getElementById('hp-entrega').value||null,costo:document.getElementById('hp-costo').value,estado:document.getElementById('hp-estado').value,obs:document.getElementById('hp-obs').value});
+  ['hp-dest','hp-cant','hp-costo','hp-obs'].forEach(id=>document.getElementById(id).value='');
+  loadPedidos();toast('✓ Pedido registrado');
+}
+async function deletePedido(id){await dbDelete('pedidos',id);loadPedidos();}
+
+// ── LONAS ──
+const expoMeses={'exterior-sol':{min:6,max:8},'exterior-sombra':{min:10,max:14},'interior':{min:18,max:30}};
+const expoLabel={'exterior-sol':'Exterior · Sol directo','exterior-sombra':'Exterior · Con sombra','interior':'Interior'};
+function addWDlona(d,n){const date=new Date(d+'T12:00:00');let a=0;while(a<n){date.setDate(date.getDate()+1);const dw=date.getDay();if(dw!==0&&dw!==6)a++;}return date.toISOString().split('T')[0];}
+function autoRevDate(){
+  const inst=document.getElementById('lv-inst').value;
+  const expo=document.getElementById('lv-expo').value;
+  if(!inst||!expo)return;
+  const cfg=expoMeses[expo];
+  const meses=Math.round((cfg.min+cfg.max)/2);
+  const d=new Date(inst+'T12:00:00');
+  d.setMonth(d.getMonth()+meses);
+  document.getElementById('lv-rev').value=d.toISOString().split('T')[0];
+}
+async function loadLonas(){
+  const data=await dbGet('lonas');
+  if(!Array.isArray(data))return;
+  const today=now.toISOString().split('T')[0];
+  // Alertas
+  const criticas=[];const avisos=[];
+  data.forEach(l=>{
+    if(l.fecha_rev&&l.fecha_rev<today) criticas.push(`${l.descripcion} · ${l.sucursal} — Revisión física vencida`);
+    if(l.vigencia&&l.vigencia<today) criticas.push(`${l.descripcion} · ${l.sucursal} — Contenido vencido`);
+    if(l.estado==='Dañado') criticas.push(`${l.descripcion} · ${l.sucursal} — Estado: Dañado`);
+    if(l.estado==='Desgastado') avisos.push(`${l.descripcion} · ${l.sucursal} — Estado: Desgastado`);
+    if(l.producto_activo==='No — descontinuado') criticas.push(`${l.descripcion} · ${l.sucursal} — Producto descontinuado`);
+  });
+  const alertEl=document.getElementById('lv-alertas');
+  if(criticas.length||avisos.length){
+    alertEl.innerHTML=`${criticas.length?`<div style="border:2px solid var(--red);padding:12px 16px;margin-bottom:8px;background:var(--red-bg);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;">⚑ Acción requerida (${criticas.length})</div>${criticas.map(a=>`<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #fcc;">${a}</div>`).join('')}</div>`:''}${avisos.length?`<div style="border:1px solid #c8a800;padding:12px 16px;background:var(--yellow-bg);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--yellow);margin-bottom:8px;">⚠ Atención próxima (${avisos.length})</div>${avisos.map(a=>`<div style="font-size:12px;padding:3px 0;">${a}</div>`).join('')}</div>`:''}`;}
+  else alertEl.innerHTML='';
+  const body=document.getElementById('lv-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin lonas registradas.</td></tr>';return;}
+  const estCls={'Bueno':'s-ok','Desgastado':'s-warn','Dañado':'s-crit','Reemplazado':'s-prog'};
+  const ctLabel={'promo-precio':'Promo c/ precio','producto-activo':'Producto activo','marca-imagen':'Imagen de marca','temporada':'Temporada'};
+  body.innerHTML=data.map(l=>{
+    const revVenc=l.fecha_rev&&l.fecha_rev<today;
+    const vigVenc=l.vigencia&&l.vigencia<today;
+    const hasCrit=revVenc||vigVenc||l.estado==='Dañado'||l.producto_activo==='No — descontinuado';
+    const hasWarn=l.estado==='Desgastado';
+    const alertBadge=hasCrit?`<span class="st s-crit">⚑ Acción</span>`:hasWarn?`<span class="st s-warn">⚠ Aviso</span>`:`<span class="st s-ok">✓ Ok</span>`;
+    return `<tr>
+      <td style="font-weight:600;max-width:140px;">${l.descripcion}<div style="font-size:10px;color:var(--mid);font-family:'DM Mono',monospace;">${l.proveedor||''} · ${l.costo||''}</div></td>
+      <td style="font-size:12px;">${l.sucursal||'—'}</td>
+      <td style="font-size:11px;color:var(--soft);">${expoLabel[l.expo]||l.expo||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--soft);">${l.medidas||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${l.fecha_inst||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;${revVenc?'color:var(--red);font-weight:700;':''}">${l.fecha_rev||'—'}</td>
+      <td><div style="font-size:11px;font-weight:500;">${ctLabel[l.contenido]||l.contenido||'—'}</div>${l.vigencia?`<div style="font-family:'DM Mono',monospace;font-size:10px;${vigVenc?'color:var(--red);font-weight:700;':''}">Hasta: ${l.vigencia}</div>`:''}</td>
+      <td><span class="st ${estCls[l.estado]||'s-ok'}">${l.estado}</span></td>
+      <td>${alertBadge}</td>
+      <td><button class="btn-sm" onclick="deleteLona(${l.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+async function addLona(){
+  const desc=document.getElementById('lv-desc').value.trim();
+  const suc=document.getElementById('lv-suc').value.trim();
+  if(!desc||!suc){alert('Agrega descripción y sucursal.');return;}
+  await dbInsert('lonas',{descripcion:desc,sucursal:suc,expo:document.getElementById('lv-expo').value,tipo:document.getElementById('lv-tipo').value,medidas:document.getElementById('lv-medidas').value,proveedor:document.getElementById('lv-prov').value,costo:document.getElementById('lv-costo').value,fecha_inst:document.getElementById('lv-inst').value||null,fecha_rev:document.getElementById('lv-rev').value||null,estado:document.getElementById('lv-estado').value,contenido:document.getElementById('lv-contenido').value,vigencia:document.getElementById('lv-vigencia').value||null,producto_activo:document.getElementById('lv-prod-activo').value,obs:document.getElementById('lv-obs').value});
+  ['lv-desc','lv-suc','lv-medidas','lv-costo','lv-obs','lv-rev','lv-vigencia'].forEach(id=>document.getElementById(id).value='');
+  loadLonas();toast('✓ Lona registrada');
+}
+async function deleteLona(id){await dbDelete('lonas',id);loadLonas();}
+
+// ── REGISTRO SILENCIOSO ──
+document.getElementById('rs-fecha').textContent=curMonth;
+async function loadRegistro(){
+  const data=await dbGet('registro_silencioso');
+  if(!Array.isArray(data))return;
+  const list=document.getElementById('rs-list');
+  if(!data.length){list.innerHTML='<div style="padding:20px 0;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--mid);">Sin iniciativas registradas aún.</div>';return;}
+  list.innerHTML=data.map(e=>`<div style="border:var(--border);padding:16px 20px;margin-bottom:10px;display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:start;">
+    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--cream);line-height:1;">${(e.mes||'?').substring(0,3).toUpperCase()}<span style="display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--mid);font-weight:400;text-transform:uppercase;margin-top:2px;">${now.getFullYear()}</span></div>
+    <div><h4 style="font-size:13px;font-weight:700;margin-bottom:3px;">${e.titulo}</h4><p style="font-size:12px;color:var(--soft);line-height:1.6;">${e.notas||'Sin notas adicionales.'}</p></div>
+    <div style="text-align:right;"><div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:500;">${e.resultado||'—'}</div><div style="font-size:10px;color:var(--mid);margin-top:2px;">resultado</div><button class="btn-sm" onclick="deleteRegistro(${e.id})" style="margin-top:8px;display:block;">Borrar</button></div>
+  </div>`).join('');
+}
+async function addRegistro(){
+  const tit=document.getElementById('rs-tit').value.trim();
+  if(!tit){alert('Agrega el nombre de la iniciativa.');return;}
+  await dbInsert('registro_silencioso',{mes:document.getElementById('rs-mes').value.trim()||curMonth,titulo:tit,notas:document.getElementById('rs-nota').value,resultado:document.getElementById('rs-res').value});
+  ['rs-mes','rs-tit','rs-nota','rs-res'].forEach(id=>document.getElementById(id).value='');
+  loadRegistro();toast('✓ Iniciativa registrada');
+}
+async function deleteRegistro(id){await dbDelete('registro_silencioso',id);loadRegistro();}
+
+// ── SHOW TAB (updated to load data) ──
+async function syncSolicitudes(){
+  const data=await dbGet('solicitudes','select=id,descripcion,tipo,solicitante,fecha_entrega,estado,created_at');
+  if(!Array.isArray(data))return;
+  solicitudes=data.map(s=>({id:s.id,desc:s.descripcion,tipo:s.tipo||'Brief',quien:s.solicitante||'—',fecha:s.fecha_entrega||'',estado:s.estado||'Pendiente',fromDB:true}));
+  renderSolicitudes();updateSummary();
+}
+async function syncPubs(){
+  const data=await dbGet('publicaciones');
+  if(!Array.isArray(data))return;
+  // Only add DB records not already in local array
+  const dbIds=new Set(data.map(d=>d.id));
+  publicaciones=publicaciones.filter(p=>!p.fromDB);
+  data.forEach(d=>{publicaciones.push({id:d.id,desc:d.descripcion,tipo:d.tipo,canal:d.canal,pilar:d.pilar,fecha:d.fecha,estado:d.estado,alcance:d.alcance||'—',inter:d.interacciones||'—',fromDB:true});});
+  renderPubs();
+}
+
+// ── GLOBALS ──
+const now = new Date();
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const DAYS_S = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const today = now.toISOString().split('T')[0];
+const curMonth = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
+let calYear = now.getFullYear();
+let calMonth = now.getMonth();
+let userEvents = []; // {id, fecha, texto, tipo, estado, done}
+let publicaciones = [];
+let objetivos = [];
+let adsEntries = [];
+let solicitudes = [];
+let modalDate = null;
+
+// ── INIT ──
+document.getElementById('hd-hoy').textContent = `${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
+document.getElementById('hoy-label').textContent = curMonth;
+['pub-mes','ads-mes','cierre-mes'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=curMonth;});
+document.getElementById('cierre-titulo').textContent=`Cierre ${curMonth}`;
+['a-fecha','p-fecha'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=today;});
+
+function showTab(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('nav .tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  if(id==='calendario') renderCal();
+  if(id==='cierre') updateCierreAuto();
+  if(id==='pendientes') loadPendientes();
+  if(id==='inventario'){loadStock();loadPedidos();loadLonas();}
+  if(id==='registro') loadRegistro();
+  updateSummary();
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+
+// ── LIQUIDACION DATES ──
+// Last upload: May 21, 2025. Every 15 WORKING days after.
+function addWorkdays(d, n){
+  const date=new Date(d+'T12:00:00');
+  let added=0;
+  while(added<n){date.setDate(date.getDate()+1);const dow=date.getDay();if(dow!==0&&dow!==6)added++;}
+  return date.toISOString().split('T')[0];
+}
+function getLiqDates(year, month){
+  // Build all liquidacion dates from base going forward/backward
+  const base='2025-05-21';
+  const dates=new Set();
+  // go forward 24 cycles
+  let cur=base;
+  for(let i=0;i<24;i++){cur=addWorkdays(cur,15);dates.add(cur);}
+  // go backward too
+  cur=base; dates.add(base);
+  for(let i=0;i<6;i++){
+    const d=new Date(cur+'T12:00:00');let sub=0;
+    while(sub<15){d.setDate(d.getDate()-1);const dow=d.getDay();if(dow!==0&&dow!==6)sub++;}
+    cur=d.toISOString().split('T')[0]; dates.add(cur);
+  }
+  return [...dates].filter(d=>{const dd=new Date(d+'T12:00:00');return dd.getFullYear()===year&&dd.getMonth()===month;});
+}
+
+// ── FIXED EVENTS PER DAY ──
+function getFixedEvents(dateStr){
+  const d = new Date(dateStr+'T12:00:00');
+  const dow = d.getDay();
+  const events = [];
+  const y=d.getFullYear(), m=d.getMonth();
+  if(dow===1){
+    events.push({tipo:'ev-jueves',text:'📋 Planeación semanal'});
+    events.push({tipo:'ev-jueves',text:'🎨 Crear contenido para la semana'});
+    events.push({tipo:'ev-jueves',text:'📲 Historia lunes anticipación'});
+    events.push({tipo:'ev-jueves',text:'📤 Compartir creativos a equipo web'});
+  }
+  if(dow===2) events.push({tipo:'ev-martes',text:'📣 MARTES DE MAYORAL'});
+  if(dow===3) events.push({tipo:'ev-viernes',text:'⭐ Revisión de reseñas Google'});
+  if(dow===4){
+    events.push({tipo:'ev-jueves',text:'📋 Pedir info a Monse (Martes Mayoral)'});
+    events.push({tipo:'ev-jueves',text:'🛍 Programar promo en Shopify'});
+    events.push({tipo:'ev-jueves',text:'⏱ Programar Countdown web'});
+  }
+  if(dow===5){
+    events.push({tipo:'ev-jueves',text:'🎨 Crear banner web y móvil'});
+    events.push({tipo:'ev-jueves',text:'📸 Crear historias Vie-Lun'});
+    events.push({tipo:'ev-jueves',text:'📤 Compartir creativos equipo web'});
+    events.push({tipo:'ev-viernes',text:'⭐ Reseñas Google'});
+    events.push({tipo:'ev-viernes',text:'💳 Revisar pagos Meta + campañas'});
+  }
+  if(dow===6){
+    events.push({tipo:'ev-off',text:'🏠 No laborable'});
+    events.push({tipo:'ev-jueves',text:'📲 Historias sáb programadas'});
+  }
+  if(dow===0){
+    events.push({tipo:'ev-off',text:'🏠 No laborable'});
+    events.push({tipo:'ev-jueves',text:'📲 Historias dom programadas'});
+  }
+  const liqDates=getLiqDates(y,m);
+  if(liqDates.includes(dateStr)) events.push({tipo:'ev-liquidacion',text:'📦 Álbum Liquidación'});
+  return events;
+}
+
+// ── CALENDAR ──
+function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCal();}
+
+function renderCal(){
+  document.getElementById('cal-title').textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const grid=document.getElementById('cal-grid');
+  const chkHistory = getChkHistory();
+  // Day headers
+  let html=DAYS_S.map(d=>`<div class="cal-dname">${d}</div>`).join('');
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  // Prev month padding
+  for(let i=firstDay-1;i>=0;i--){
+    html+=`<div class="cal-cell other-month"><div class="cal-dnum">${prevDays-i}</div></div>`;
+  }
+  // Current month days
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow=new Date(dateStr+'T12:00:00').getDay();
+    const isToday=dateStr===today;
+    const isWend=dow===0||dow===6;
+    const fixed=getFixedEvents(dateStr);
+    const userEvs=userEvents.filter(e=>e.fecha===dateStr);
+    const pubs=publicaciones.filter(p=>p.fecha===dateStr);
+    const chk=chkHistory[dateStr];
+    let evHtml='';
+    // Checklist completion badge (only for past days and today)
+    if(chk && dateStr<=today){
+      const color=chk.pct===100?'var(--green)':chk.pct>=50?'var(--yellow)':'var(--red)';
+      const bg=chk.pct===100?'var(--green-bg)':chk.pct>=50?'var(--yellow-bg)':'var(--red-bg)';
+      evHtml+=`<div style="display:inline-flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:8.5px;padding:2px 5px;background:${bg};color:${color};border-left:2px solid ${color};margin-bottom:2px;font-weight:600;">${chk.pct===100?'✓':'◑'} Checklist ${chk.pct}%</div>`;
+    }
+    fixed.forEach(e=>{evHtml+=`<div class="cal-event ${e.tipo}" title="${e.text}">${e.text}</div>`;});
+    userEvs.slice(0,2).forEach(e=>{
+      const cls=e.done?'ev-user done':'ev-user';
+      evHtml+=`<div class="cal-event ${cls}" onclick="toggleCalEvent(${e.id},event)" title="${e.texto}">${e.done?'✓ ':''} ${e.texto}</div>`;
+    });
+    pubs.slice(0,2).forEach(p=>{
+      const cls=p.estado==='Publicado'?'ev-pub-done':'ev-pub-plan';
+      evHtml+=`<div class="cal-event ${cls}" title="${p.desc}">${p.estado==='Publicado'?'✓':' '} ${p.desc}</div>`;
+    });
+    const extraUser=userEvs.length>2?`<div class="cal-more">+${userEvs.length-2} más</div>`:'';
+    html+=`<div class="cal-cell ${isToday?'today':''} ${isWend?'weekend':''}" onclick="openModal('${dateStr}')">
+      <div class="cal-dnum">${d}</div>
+      ${evHtml}${extraUser}
+    </div>`;
+  }
+  // Next month padding
+  const totalCells=Math.ceil((firstDay+daysInMonth)/7)*7;
+  let next=1;
+  for(let i=firstDay+daysInMonth;i<totalCells;i++){
+    html+=`<div class="cal-cell other-month"><div class="cal-dnum">${next++}</div></div>`;
+  }
+  grid.innerHTML=html;
+}
+
+// ── MODAL ──
+function openModal(dateStr){
+  modalDate=dateStr;
+  document.getElementById('m-fecha').value=dateStr;
+  document.getElementById('m-texto').value='';
+  document.getElementById('modal-title').textContent=`Agregar tarea — ${dateStr}`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){if(e.target===document.getElementById('modal-overlay'))closeModalDirect();}
+function closeModalDirect(){document.getElementById('modal-overlay').classList.remove('open');}
+function saveModalEvent(){
+  const texto=document.getElementById('m-texto').value.trim();
+  const fecha=document.getElementById('m-fecha').value;
+  if(!texto){alert('Agrega una descripción.');return;}
+  userEvents.push({id:Date.now(),fecha,texto,tipo:document.getElementById('m-tipo').value,estado:document.getElementById('m-estado').value,done:false});
+  closeModalDirect();
+  renderCal();buildWeekGrid();updateSummary();
+  toast('✓ Tarea agregada');
+}
+function toggleCalEvent(id,e){
+  e.stopPropagation();
+  const ev=userEvents.find(x=>x.id===id);
+  if(ev){ev.done=!ev.done;renderCal();buildWeekGrid();}
+}
+
+// ── WEEK GRID ──
+function buildWeekGrid(){
+  const grid=document.getElementById('week-grid');
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(now);d.setDate(now.getDate()+i);
+    const dateStr=d.toISOString().split('T')[0];
+    const dow=d.getDay();
+    const isToday=dateStr===today;
+    const isWend=dow===0||dow===6;
+    const fixed=getFixedEvents(dateStr);
+    const userEvs=userEvents.filter(e=>e.fecha===dateStr);
+    const pubs=publicaciones.filter(p=>p.fecha===dateStr);
+    let tasks='';
+    fixed.slice(0,3).forEach(e=>{tasks+=`<div class="wtask ev-fixed ${e.tipo}" style="font-size:10px;">${e.text}</div>`;});
+    userEvs.forEach(e=>{tasks+=`<div class="wtask ev-user ${e.done?'done':''}" onclick="toggleWeekEv(${e.id})">${e.done?'✓ ':''} ${e.texto}</div>`;});
+    pubs.forEach(p=>{const cls=p.estado==='Publicado'?'ev-pub-done':'ev-pub-plan';tasks+=`<div class="wtask ${cls}">${p.estado==='Publicado'?'✓':''} ${p.desc}</div>`;});
+    html+=`<div class="wday ${isToday?'today':''} ${isWend?'wend':''}" onclick="openModal('${dateStr}')">
+      <div class="wday-name">${DAYS_S[dow]}</div>
+      <div class="wday-num">${d.getDate()}</div>
+      ${tasks}
+      ${isWend?'<div style="font-size:9px;color:var(--mid);font-family:\'DM Mono\',monospace;margin-top:4px;">No laborable</div>':''}
+    </div>`;
+  }
+  grid.innerHTML=html;
+}
+function toggleWeekEv(id){const e=userEvents.find(x=>x.id===id);if(e){e.done=!e.done;buildWeekGrid();renderCal();}}
+
+// ── CHECKLIST HOY ──
+// ── CHECKLIST CON MEMORIA ──
+// Storage key: mayoral_chk_YYYY-MM-DD → {items:[{txt,done},...], completedAt: timestamp}
+const CHK_KEY = `mayoral_chk_${today}`;
+
+function getChecklistItems(){
+  const dow = now.getDay();
+  const items = [
+    'Revisar métricas del día anterior',
+    'Publicaciones programadas OK',
+    'Revisar y optimizar campañas Meta Ads',
+    'Revisión y control página web',
+    'Publicaciones en Pinterest',
+    'Registrar contenido publicado en tracker',
+    '👀 Revisar referencias / tendencias del sector (10 min)',
+  ];
+  if(dow===1) items.push('📋 Planeación semanal','🎨 Creación de contenido para la semana');
+  if(dow===2) items.push('📣 Publicar Martes de Mayoral (stories)');
+  if(dow===3) items.push('⭐ Revisión de reseñas en Google');
+  if(dow===4) items.push('📋 Pedir info a Monse — Martes Mayoral','🛍 Programar promo Shopify','⏱ Countdown en página web');
+  if(dow===5) items.push('🎨 Crear banner web y móvil','📸 Crear historias Vie-Lun','📤 Compartir creativos equipo web','⭐ Revisión de reseñas en Google','💳 Revisar pagos Meta');
+  return items;
+}
+
+function loadChkState(){
+  try{
+    const raw = localStorage.getItem(CHK_KEY);
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  return null;
+}
+
+function saveChkState(items){
+  try{
+    const allDone = items.every(it=>it.done);
+    localStorage.setItem(CHK_KEY, JSON.stringify({
+      items,
+      pct: Math.round(items.filter(i=>i.done).length / items.length * 100),
+      completedAt: allDone ? Date.now() : null
+    }));
+    // Also save summary to the "history" key for calendar
+    saveChkToHistory(today, items);
+  } catch(e){}
+}
+
+function saveChkToHistory(dateStr, items){
+  try{
+    const histKey = 'mayoral_chk_history';
+    const hist = JSON.parse(localStorage.getItem(histKey)||'{}');
+    hist[dateStr] = {
+      pct: Math.round(items.filter(i=>i.done).length / items.length * 100),
+      done: items.filter(i=>i.done).length,
+      total: items.length,
+      items: items.map(i=>({txt:i.txt, done:i.done}))
+    };
+    localStorage.setItem(histKey, JSON.stringify(hist));
+  } catch(e){}
+}
+
+function getChkHistory(){
+  try{ return JSON.parse(localStorage.getItem('mayoral_chk_history')||'{}'); }
+  catch(e){ return {}; }
+}
+
+function buildChecklistHoy(){
+  const baseItems = getChecklistItems();
+  const saved = loadChkState();
+  // Merge: if saved has same count use saved states, otherwise fresh
+  let items;
+  if(saved && saved.items && saved.items.length === baseItems.length){
+    items = saved.items;
+  } else {
+    items = baseItems.map(txt=>({txt, done:false}));
+    saveChkState(items);
+  }
+
+  const done = items.filter(i=>i.done).length;
+  const pct = Math.round(done/items.length*100);
+
+  const el = document.getElementById('checklist-hoy');
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${done} / ${items.length} completadas</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:80px;height:4px;background:var(--cream);border-radius:2px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${pct===100?'var(--green)':pct>50?'var(--ink)':'var(--yellow)'};border-radius:2px;transition:width .4s;"></div>
+        </div>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:${pct===100?'var(--green)':'var(--ink)'};">${pct}%</span>
+      </div>
+    </div>
+    ${items.map((item,i)=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--cream);cursor:pointer;transition:opacity .15s;" onclick="toggleChk(${i})" id="chk-row-${i}">
+      <span style="font-family:'DM Mono',monospace;font-size:13px;color:${item.done?'var(--green)':'var(--warm)'};flex-shrink:0;" id="chk-ico-${i}">${item.done?'●':'○'}</span>
+      <span style="font-size:12.5px;${item.done?'text-decoration:line-through;opacity:.45;':''}" id="chk-txt-${i}">${item.txt}</span>
+    </div>`).join('')}
+    ${pct===100?`<div style="margin-top:10px;padding:8px 12px;background:var(--green-bg);border-left:3px solid var(--green);font-size:12px;color:var(--green);font-weight:600;">✓ Día completo — todo registrado</div>`:''}
+  `;
+}
+
+function toggleChk(i){
+  const saved = loadChkState();
+  const baseItems = getChecklistItems();
+  let items = (saved && saved.items && saved.items.length===baseItems.length)
+    ? saved.items
+    : baseItems.map(txt=>({txt,done:false}));
+  items[i].done = !items[i].done;
+  saveChkState(items);
+  buildChecklistHoy();
+  // Refresh calendar if visible so the dot updates
+  const calSection = document.getElementById('calendario');
+  if(calSection.classList.contains('active')) renderCal();
+}
+
+// ── OBJETIVOS ──
+const OBJ_TEMPLATES={
+  consistencia:{txt:'Publicar según el plan mensual sin fallar semanas',kpi:'% de cumplimiento ≥ 85%',area:'Contenido orgánico',acc:'4 posts/semana · 1 carrusel quincenal · historias diarias'},
+  ventas:{txt:'Apoyar ventas con campañas Meta Ads activas',kpi:'Costo por mensaje ≤ $20 MXN',area:'Meta Ads',acc:'Revisar campañas diario · Optimizar conjuntos semanalmente'},
+  temporada:{txt:'Ejecutar campaña de temporada [mes]',kpi:'Contenido publicado en las fechas clave',area:'Contenido orgánico',acc:'Definir fechas · Crear piezas con 1 semana de anticipación'},
+  imagen:{txt:'Mantener imagen de tienda actualizada',kpi:'0 lonas/viniles vencidos al cierre del mes',area:'Impresos',acc:'Revisar pestaña Lonas en Panel · Iniciar reemplazos con 15 días de anticipación'},
+  martes:{txt:'Ejecutar 4 Martes de Mayoral sin retrasos',kpi:'4/4 ejecutados con anticipación completa',area:'Contenido orgánico',acc:'Solicitar info a Monse cada jueves antes de las 12pm'},
+  web:{txt:'Mantener página web al día todo el mes',kpi:'Sin precios ni inventario desactualizado',area:'Página web',acc:'Revisión semanal de precios · Actualizar nuevos productos en 48h'}
+};
+function fillObjTemplate(key){
+  const t=OBJ_TEMPLATES[key];
+  document.getElementById('ob-txt').value=t.txt;
+  document.getElementById('ob-kpi').value=t.kpi;
+  document.getElementById('ob-area').value=t.area;
+  document.getElementById('ob-acc').value=t.acc;
+  document.getElementById('modal-tpl').style.display='none';
+  toast('✓ Plantilla cargada — ajusta los detalles y guarda');
+}
+function addObjetivo(){
+  const txt=document.getElementById('ob-txt').value.trim();
+  if(!txt){alert('Describe el objetivo.');return;}
+  objetivos.push({id:Date.now(),txt,kpi:document.getElementById('ob-kpi').value,area:document.getElementById('ob-area').value,estado:document.getElementById('ob-est').value,acc:document.getElementById('ob-acc').value});
+  ['ob-txt','ob-kpi','ob-acc'].forEach(id=>document.getElementById(id).value='');
+  renderObjetivos();updateSummary();
+}
+function setObjEst(id,val){const o=objetivos.find(x=>x.id===id);if(o){o.estado=val;renderObjetivos();updateSummary();}}
+function delObj(id){objetivos=objetivos.filter(x=>x.id!==id);renderObjetivos();updateSummary();}
+function renderObjetivos(){
+  const list=document.getElementById('obj-list');
+  if(!objetivos.length){list.innerHTML='<div style="padding:20px;text-align:center;border:var(--border);font-family:\'DM Mono\',monospace;font-size:11px;color:var(--mid);">Define tus objetivos. Usa las plantillas para empezar rápido.</div>';return;}
+  list.innerHTML=objetivos.map((o,i)=>{
+    const stMap={'Logrado':'s-ok','En progreso':'s-prog','Sin iniciar':'s-pend','No logrado':'s-crit'};
+    return `<div class="obj-item">
+      <div class="obj-n">${String(i+1).padStart(2,'0')}</div>
+      <div class="obj-b"><h4>${o.txt}</h4><p>${o.acc||'Sin acciones definidas'}</p>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border:1px solid var(--warm);color:var(--soft);margin-top:5px;display:inline-block;">${o.area}</span>
+      </div>
+      <div class="obj-kpi">${o.kpi||'—'}</div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        <select onchange="setObjEst(${o.id},this.value)" style="border:var(--border);background:var(--paper);font-family:'DM Mono',monospace;font-size:9px;padding:4px 7px;cursor:pointer;appearance:none;">
+          <option ${o.estado==='Sin iniciar'?'selected':''}>Sin iniciar</option>
+          <option ${o.estado==='En progreso'?'selected':''}>En progreso</option>
+          <option ${o.estado==='Logrado'?'selected':''}>Logrado</option>
+          <option ${o.estado==='No logrado'?'selected':''}>No logrado</option>
+        </select>
+        <button class="btn-sm" onclick="delObj(${o.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('obj-log').textContent=objetivos.filter(o=>o.estado==='Logrado').length;
+  document.getElementById('obj-prog').textContent=objetivos.filter(o=>o.estado==='En progreso').length;
+  document.getElementById('obj-pend').textContent=objetivos.filter(o=>o.estado==='Sin iniciar'||o.estado==='No logrado').length;
+}
+
+// ── PUBLICACIONES ──
+function addPub(){
+  const desc=document.getElementById('p-desc').value.trim();
+  if(!desc){alert('Agrega descripción.');return;}
+  publicaciones.unshift({id:Date.now(),desc,tipo:document.getElementById('p-tipo').value,canal:document.getElementById('p-canal').value,pilar:document.getElementById('p-pilar').value,fecha:document.getElementById('p-fecha').value,estado:document.getElementById('p-est').value,alcance:document.getElementById('p-alcance').value||'—',inter:document.getElementById('p-inter').value||'—'});
+  document.getElementById('p-desc').value='';
+  document.getElementById('p-alcance').value='';
+  document.getElementById('p-inter').value='';
+  renderPubs();buildWeekGrid();renderCal();updateSummary();
+}
+function delPub(id){publicaciones=publicaciones.filter(x=>x.id!==id);renderPubs();buildWeekGrid();renderCal();updateSummary();}
+function setPubEst(id,val){const p=publicaciones.find(x=>x.id===id);if(p){p.estado=val;renderPubs();buildWeekGrid();renderCal();updateSummary();}}
+function renderPubs(){
+  const meta=parseInt(document.getElementById('p-meta').value)||0;
+  const done=publicaciones.filter(p=>p.estado==='Publicado').length;
+  const pend=publicaciones.filter(p=>p.estado!=='Publicado').length;
+  const pct=meta>0?Math.round((done/meta)*100):0;
+  document.getElementById('p-meta-n').textContent=meta||publicaciones.length;
+  document.getElementById('p-done-n').textContent=done;
+  document.getElementById('p-pend-n').textContent=pend;
+  document.getElementById('p-pct').textContent=meta>0?pct+'%':'—';
+  document.getElementById('p-prog-lbl').textContent=`${done} / ${meta||'?'}`;
+  const fill=document.getElementById('p-prog-fill');
+  fill.style.width=pct+'%';
+  fill.className='prog-fill'+(pct>=80?'':pct>=50?' warn':' danger');
+  const body=document.getElementById('p-body');
+  const stMap={'Publicado':'s-ok','Programado':'s-prog','Pendiente':'s-pend'};
+  if(!publicaciones.length){body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin publicaciones.</td></tr>';return;}
+  body.innerHTML=publicaciones.map(p=>`<tr>
+    <td style="font-weight:600;max-width:180px;">${p.desc}</td>
+    <td style="font-size:11px;">${p.tipo}</td>
+    <td style="font-size:11.5px;color:var(--soft);">${p.canal}</td>
+    <td style="font-size:11.5px;color:var(--soft);">${p.pilar}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${p.fecha}</td>
+    <td><select onchange="setPubEst(${p.id},this.value)" style="border:var(--border);background:var(--paper);font-family:'DM Mono',monospace;font-size:9px;padding:3px 6px;cursor:pointer;appearance:none;">
+      <option ${p.estado==='Publicado'?'selected':''}>Publicado</option>
+      <option ${p.estado==='Programado'?'selected':''}>Programado</option>
+      <option ${p.estado==='Pendiente'?'selected':''}>Pendiente</option>
+    </select></td>
+    <td style="font-family:'DM Mono',monospace;font-size:11px;">${p.alcance}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:11px;">${p.inter}</td>
+    <td><button class="btn-sm" onclick="delPub(${p.id})">✕</button></td>
+  </tr>`).join('');
+}
+
+// ── META ADS ──
+function prevCPM(){const g=parseFloat(document.getElementById('a-gasto').value);const m=parseFloat(document.getElementById('a-msgs-inp').value);document.getElementById('a-cpm-prev').textContent=(g>0&&m>0)?'$'+Math.round(g/m):'—';}
+function addAds(){
+  const g=parseFloat(document.getElementById('a-gasto').value);
+  if(!g){alert('Ingresa el gasto.');return;}
+  const m=parseFloat(document.getElementById('a-msgs-inp').value)||0;
+  adsEntries.unshift({id:Date.now(),fecha:document.getElementById('a-fecha').value,conj:document.getElementById('a-conj').value,gasto:g,msgs:m,cpm:m>0?Math.round(g/m):0,obs:document.getElementById('a-obs').value||'—'});
+  document.getElementById('a-gasto').value='';document.getElementById('a-msgs-inp').value='';document.getElementById('a-obs').value='';document.getElementById('a-cpm-prev').textContent='—';
+  renderAds();updateSummary();
+}
+function delAds(id){adsEntries=adsEntries.filter(x=>x.id!==id);renderAds();updateSummary();}
+function renderAds(){
+  const budget=parseFloat(document.getElementById('a-budget').value)||0;
+  const tg=adsEntries.reduce((s,e)=>s+e.gasto,0);
+  const tm=adsEntries.reduce((s,e)=>s+e.msgs,0);
+  const cpm=tm>0?Math.round(tg/tm):0;
+  document.getElementById('a-total').textContent='$'+tg.toLocaleString('es-MX');
+  document.getElementById('a-budget-n').textContent=budget?'$'+budget.toLocaleString('es-MX'):'$—';
+  document.getElementById('a-msgs').textContent=tm;
+  document.getElementById('a-cpm').textContent=cpm?'$'+cpm:'$—';
+  if(budget>0){
+    const pct=Math.min(100,Math.round((tg/budget)*100));
+    document.getElementById('a-prog-lbl').textContent=`$${tg.toLocaleString('es-MX')} / $${budget.toLocaleString('es-MX')} (${pct}%)`;
+    const f=document.getElementById('a-prog-fill');f.style.width=pct+'%';
+    f.className='prog-fill'+(pct>90?' danger':pct>70?' warn':'');
+  }
+  const body=document.getElementById('a-body');
+  if(!adsEntries.length){body.innerHTML='<div style="padding:20px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--mid);">Sin registros.</div>';return;}
+  body.innerHTML=adsEntries.map(e=>`<div class="arow">
+    <div class="ac" style="font-weight:600;">${e.conj}</div>
+    <div class="ac" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${e.fecha}</div>
+    <div class="ac"><span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;">$${e.gasto}</span></div>
+    <div class="ac" style="font-family:'DM Mono',monospace;">${e.msgs}</div>
+    <div class="ac" style="font-family:'DM Mono',monospace;font-size:12px;">${e.cpm?'$'+e.cpm:'—'}</div>
+    <div class="ac" style="font-size:11px;color:var(--soft);">${e.obs}</div>
+    <div class="ac"><button class="btn-sm" onclick="delAds(${e.id})">✕</button></div>
+  </div>`).join('');
+}
+
+// ── SUMMARY UPDATE ──
+// ── SOLICITUDES (sincronizadas con Supabase) ──
+function renderSolicitudes(){
+  // Update summary counter
+  const pend=solicitudes.filter(s=>s.estado==='Pendiente').length;
+  document.getElementById('q-sol-pend').textContent=pend;
+}
+
+function updateSummary(){
+  const pendT=userEvents.filter(e=>!e.done).length+publicaciones.filter(p=>p.estado==='Pendiente').length;
+  document.getElementById('q-pend').textContent=pendT;
+  document.getElementById('q-hoy-pub').textContent=publicaciones.filter(p=>p.fecha===today).length;
+  const objOk=objetivos.filter(o=>o.estado==='Logrado').length;
+  document.getElementById('q-obj-ok').textContent=objOk;
+  document.getElementById('q-obj-total').textContent=objetivos.length;
+  document.getElementById('q-sol-pend').textContent=solicitudes.filter(s=>s.estado!=='Completado').length;
+  // Urgentes
+  const urgentes=userEvents.filter(e=>!e.done&&e.fecha<=today);
+  const el=document.getElementById('urgentes-hoy');
+  if(!urgentes.length){el.innerHTML='<div style="font-size:12px;color:var(--mid);font-family:\'DM Mono\',monospace;padding:10px 0;">Sin urgencias.</div>';return;}
+  el.innerHTML=urgentes.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--cream);">
+    <span style="font-size:12.5px;font-weight:600;">${e.texto}</span>
+    <span class="st ${e.fecha<today?'s-crit':'s-warn'}" style="font-size:9px;">${e.fecha<today?'Vencida':'Hoy'}</span>
+  </div>`).join('');
+}
+
+// ── CIERRE ──
+function updateCierreAuto(){
+  const tPub=publicaciones.filter(p=>p.estado==='Publicado').length;
+  const meta=parseInt(document.getElementById('p-meta').value)||0;
+  const tG=adsEntries.reduce((s,e)=>s+e.gasto,0);
+  const tM=adsEntries.reduce((s,e)=>s+e.msgs,0);
+  const objLog=objetivos.filter(o=>o.estado==='Logrado').length;
+  document.getElementById('cierre-auto').innerHTML=`
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--cream);font-size:13px;"><span style="color:var(--mid);">Publicaciones realizadas</span><strong>${tPub}${meta?' / '+meta:''}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--cream);font-size:13px;"><span style="color:var(--mid);">Gasto Meta Ads</span><strong>$${tG.toLocaleString('es-MX')} MXN</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--cream);font-size:13px;"><span style="color:var(--mid);">Mensajes WhatsApp</span><strong>${tM}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--cream);font-size:13px;"><span style="color:var(--mid);">Costo por mensaje</span><strong>${tM>0?'$'+Math.round(tG/tM)+' MXN':'—'}</strong></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:var(--mid);">Objetivos logrados</span><strong>${objLog} / ${objetivos.length}</strong></div>`;
+}
+function generarCierre(){
+  updateCierreAuto();
+  const tPub=publicaciones.filter(p=>p.estado==='Publicado').length;
+  const meta=parseInt(document.getElementById('p-meta').value)||0;
+  const pct=meta>0?Math.round((tPub/meta)*100):0;
+  const tG=adsEntries.reduce((s,e)=>s+e.gasto,0);
+  const tM=adsEntries.reduce((s,e)=>s+e.msgs,0);
+  const cpm=tM>0?Math.round(tG/tM):0;
+  const objLog=objetivos.filter(o=>o.estado==='Logrado').length;
+  const bien=document.getElementById('c-bien').value||'No especificado.';
+  const mal=document.getElementById('c-mal').value||'No especificado.';
+  const ajuste=document.getElementById('c-ajuste').value||'No especificado.';
+  document.getElementById('cierre-cuerpo').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;">
+      <div style="text-align:center;padding:12px;border:var(--border);">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);margin-bottom:5px;">Publicaciones</div>
+        <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;line-height:1;">${tPub}${meta?'<span style="font-size:13px;font-weight:300;"> / '+meta+'</span>':''}</div>
+        ${meta?`<div style="font-size:10px;color:var(--mid);">${pct}% del plan</div>`:''}
+      </div>
+      <div style="text-align:center;padding:12px;border:var(--border);">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);margin-bottom:5px;">Gasto Meta Ads</div>
+        <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;line-height:1;">$${tG.toLocaleString('es-MX')}</div>
+        <div style="font-size:10px;color:var(--mid);">MXN</div>
+      </div>
+      <div style="text-align:center;padding:12px;border:var(--border);">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);margin-bottom:5px;">Mensajes WA</div>
+        <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;line-height:1;">${tM}</div>
+        ${cpm?`<div style="font-size:10px;color:var(--mid);">$${cpm} por mensaje</div>`:''}
+      </div>
+      <div style="text-align:center;padding:12px;border:var(--border);">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);margin-bottom:5px;">Objetivos</div>
+        <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;line-height:1;">${objLog}<span style="font-size:13px;font-weight:300;"> / ${objetivos.length}</span></div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px;padding:12px 14px;border-left:3px solid var(--green);background:var(--green-bg);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--green);margin-bottom:5px;">✓ Lo que funcionó</div>
+      <p style="font-size:12.5px;line-height:1.7;">${bien}</p>
+    </div>
+    <div style="margin-bottom:12px;padding:12px 14px;border-left:3px solid var(--yellow);background:var(--yellow-bg);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--yellow);margin-bottom:5px;">⚠ Lo que no funcionó</div>
+      <p style="font-size:12.5px;line-height:1.7;">${mal}</p>
+    </div>
+    <div style="padding:12px 14px;border-left:3px solid var(--ink);background:var(--cream);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink);margin-bottom:5px;">→ Ajustes para el próximo mes</div>
+      <p style="font-size:12.5px;line-height:1.7;">${ajuste}</p>
+    </div>`;
+  document.getElementById('cierre-output').style.display='block';
+  document.getElementById('cierre-output').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function copiarCierre(){
+  const tG=adsEntries.reduce((s,e)=>s+e.gasto,0);
+  const tM=adsEntries.reduce((s,e)=>s+e.msgs,0);
+  const tPub=publicaciones.filter(p=>p.estado==='Publicado').length;
+  const cpm=tM>0?Math.round(tG/tM):0;
+  let txt=`RENDICIÓN DE CUENTAS — ${curMonth.toUpperCase()}\nMuebles Mayoral · Contenido Digital & Social Media\n${'─'.repeat(48)}\n\n`;
+  txt+=`Publicaciones realizadas: ${tPub}\nGasto Meta Ads: $${tG.toLocaleString('es-MX')} MXN\nMensajes WhatsApp: ${tM}\n`;
+  if(cpm)txt+=`Costo por mensaje: $${cpm} MXN\n`;
+  txt+=`Objetivos logrados: ${objetivos.filter(o=>o.estado==='Logrado').length} / ${objetivos.length}\n\n`;
+  txt+=`LO QUE FUNCIONÓ\n${document.getElementById('c-bien').value||'—'}\n\nLO QUE NO FUNCIONÓ\n${document.getElementById('c-mal').value||'—'}\n\nAJUSTES PRÓXIMO MES\n${document.getElementById('c-ajuste').value||'—'}`;
+  navigator.clipboard.writeText(txt).then(()=>toast('✓ Resumen copiado'));
+}
+
+// ── INIT RENDERS ──
+buildWeekGrid();
+buildChecklistHoy();
+renderCal();
+renderObjetivos();
+renderPubs();
+renderAds();
+updateSummary();
+// Sync with Supabase
+syncSolicitudes();
+syncPubs();
+loadPendientes();
+loadRegistro();
+// Auto-refresh every 30 seconds
+setInterval(()=>{syncSolicitudes();loadPendientes();updateSummary();updateCierreAuto();},30000);
+</script>
+</body>
+</html>
