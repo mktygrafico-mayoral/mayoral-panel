@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Gestión — Muebles Mayoral</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0a0a0a;--white:#f5f4f0;--g100:#eae8e3;--g200:#d0cdc5;--g400:#9a9690;--g600:#5a5752;--border:1px solid #d0cdc5;--green:#2d5a27;--yellow:#7a5c00;--red:#8b0000;--green-bg:#f0f7ef;--yellow-bg:#fffbea;--red-bg:#fff5f5;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black);min-height:100vh;}
+header{background:var(--black);color:var(--white);padding:20px 34px;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--black);}
+header h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;line-height:1;}
+header p{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--g400);margin-top:5px;}
+.hd-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--g400);text-align:right;}
+.hd-meta strong{display:block;color:var(--white);font-size:13px;font-weight:500;}
+nav{border-bottom:var(--border);background:var(--white);padding:0 34px;display:flex;overflow-x:auto;gap:0;}
+.tab{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:13px 16px;cursor:pointer;border:none;background:transparent;color:var(--g400);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s;}
+.tab:hover{color:var(--black);}
+.tab.active{color:var(--black);border-bottom:2px solid var(--black);}
+main{padding:28px 34px;max-width:1200px;}
+.section{display:none;}.section.active{display:block;}
+.sec-hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;padding-bottom:12px;border-bottom:var(--border);}
+.sec-hd h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.sec-hd small{font-size:12px;color:var(--g600);margin-top:3px;display:block;}
+.tag{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;padding:3px 9px;border:1px solid var(--g200);color:var(--g600);white-space:nowrap;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.card{border:var(--border);padding:18px;background:var(--white);}
+.card-label{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:var(--g400);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.card-label::before{content:'';display:block;width:6px;height:6px;background:var(--black);flex-shrink:0;}
+.fi{width:100%;border:var(--border);padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12.5px;background:var(--white);color:var(--black);outline:none;}
+.fi:focus{border-color:var(--black);}
+select.fi{font-family:'DM Mono',monospace;font-size:11px;appearance:none;cursor:pointer;}
+textarea.fi{resize:vertical;line-height:1.6;}
+.lbl{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--g400);margin-bottom:4px;}
+.btn{background:var(--black);color:var(--white);border:none;padding:9px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+.btn:hover{opacity:.8;}
+.btn-ghost{background:var(--white);color:var(--black);border:var(--border);padding:9px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;cursor:pointer;}
+.btn-sm{background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--g400);padding:2px 5px;}
+.info{border-left:3px solid var(--black);padding:10px 13px;background:var(--g100);font-size:12px;color:var(--g600);line-height:1.7;margin-top:12px;}
+.info strong{color:var(--black);}
+.st{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;padding:3px 7px;white-space:nowrap;}
+.s-pend{background:var(--black);color:var(--white);}
+.s-prog{border:1px solid var(--black);color:var(--black);}
+.s-ok{background:var(--green-bg);color:var(--green);border:1px solid #b8d4b5;}
+.s-warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid #e8d080;}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--g400);font-weight:500;padding:8px 10px;text-align:left;border-bottom:2px solid var(--black);}
+.tbl td{font-size:12.5px;padding:8px 10px;border-bottom:1px solid var(--g100);vertical-align:middle;line-height:1.5;}
+.tbl tr:last-child td{border-bottom:none;}
+.btab-bar{display:flex;border-bottom:var(--border);margin-bottom:18px;}
+.btab{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:10px 14px;cursor:pointer;border:none;background:transparent;color:var(--g400);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.btab.active{color:var(--black);border-bottom:2px solid var(--black);}
+.bsec{display:none;}.bsec.active{display:block;}
+.bsec-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--g400);margin-bottom:10px;margin-top:2px;padding-bottom:6px;border-bottom:var(--border);display:block;}
+.brief-out{border:2px solid var(--black);padding:22px 26px;background:var(--white);display:none;margin-top:14px;}
+.brief-out h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--black);}
+.brief-row{display:flex;gap:10px;margin-bottom:8px;}
+.brief-row strong{min-width:160px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:.8px;text-transform:uppercase;color:var(--g400);flex-shrink:0;padding-top:2px;}
+.brief-row span{color:var(--black);font-size:13px;font-weight:500;}
+.brief-section-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--g400);padding:10px 0 6px;border-top:var(--border);margin-top:8px;}
+.flow-step{display:flex;gap:14px;align-items:stretch;margin-bottom:4px;}
+.flow-l{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.flow-n{width:24px;height:24px;background:var(--black);color:var(--white);font-family:'DM Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.flow-ln{width:1px;flex:1;background:var(--g200);min-height:12px;}
+.flow-c{flex:1;padding-bottom:16px;}
+.flow-c h4{font-size:12.5px;font-weight:600;margin-bottom:3px;}
+.flow-c p{font-size:12px;color:var(--g600);line-height:1.6;}
+.fn{display:inline-block;margin-top:5px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.8px;padding:3px 8px;background:var(--black);color:var(--white);}
+.sla-row{display:grid;grid-template-columns:2fr .8fr 1.4fr 1.8fr;border-bottom:1px solid var(--g100);}
+.sla-row.hd{border-bottom:2px solid var(--black);}
+.sla-row.hd .sc{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--g400);font-weight:500;}
+.sc{padding:8px 10px;font-size:12.5px;line-height:1.5;border-right:1px solid var(--g100);}
+.sc:last-child{border-right:none;}
+.sla-t{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;}
+.act-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--g100);font-size:13px;line-height:1.5;}
+.act-item:last-child{border-bottom:none;}
+.act-name{font-weight:500;}
+.act-note{font-size:11.5px;color:var(--g600);margin-top:2px;}
+.freq{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;white-space:nowrap;flex-shrink:0;}
+.f-d{background:var(--black);color:var(--white);}
+.f-s{border:1px solid var(--black);color:var(--black);}
+.f-q{background:var(--g100);color:var(--g600);}
+.f-m{background:var(--g200);color:var(--g600);}
+.f-p{background:var(--white);color:var(--g600);border:1px dashed var(--g400);}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--black);color:var(--white);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.8px;padding:11px 16px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.loading{font-family:'DM Mono',monospace;font-size:11px;color:var(--g400);padding:20px;text-align:center;}
+.stat-n{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;line-height:1;}
+.stat-l{font-size:11px;color:var(--g400);margin-top:4px;}
+@media(max-width:768px){header,nav,main{padding-left:14px;padding-right:14px;}.g2,.g3{grid-template-columns:1fr;}.sla-row{grid-template-columns:1.5fr .8fr 1fr;}.sla-row .sc:last-child{display:none;}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<header>
+  <div>
+    <h1>Panel de Gestión</h1>
+    <p>Contenido Digital &amp; Social Media · Muebles Mayoral</p>
+  </div>
+  <div class="hd-meta">Área de Marketing<strong id="hd-date"></strong></div>
+</header>
+<nav>
+  <button class="tab active" onclick="showTab('actividades',this)">Mis Actividades</button>
+  <button class="tab" onclick="showTab('solicitudes',this)">Solicitudes &amp; Brief</button>
+  <button class="tab" onclick="showTab('estado',this)">Estado de Solicitudes</button>
+</nav>
+<main>
+
+<!-- ACTIVIDADES -->
+<section class="section active" id="actividades">
+  <div class="sec-hd"><div><h2>Mapa de Actividades</h2><small>Qué hace el área de Contenido Digital y cómo solicitar trabajo.</small></div><span class="tag">Información pública</span></div>
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="card-label">Actividades Diarias</div>
+      <div class="act-item"><div><div class="act-name">Creación de contenido estático</div><div class="act-note">Posts, carruseles e historias para Instagram y Facebook</div></div><span class="freq f-d">Diario</span></div>
+      <div class="act-item"><div><div class="act-name">Publicación y programación de contenido</div><div class="act-note">Meta Business Suite · Instagram · Facebook · Pinterest</div></div><span class="freq f-d">Diario</span></div>
+      <div class="act-item"><div><div class="act-name">Revisión y control de Meta Ads</div><div class="act-note">Campañas activas: gasto, resultados, optimizaciones</div></div><span class="freq f-d">Diario</span></div>
+      <div class="act-item"><div><div class="act-name">Revisión y control de página web</div><div class="act-note">Productos, precios, inventario, promociones</div></div><span class="freq f-d">Diario</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Bajo Petición — Requieren Brief</div>
+      <div class="act-item"><div><div class="act-name">Diseño publicitario / Cartelería</div><div class="act-note">Banners web, señalética, material de piso de venta</div></div><span class="freq f-p">Brief requerido</span></div>
+      <div class="act-item"><div><div class="act-name">Impresión física</div><div class="act-note">Tarjetas, etiquetas, lonas, viniles — cotización con 3 proveedores</div></div><span class="freq f-p">Brief requerido</span></div>
+      <div class="act-item"><div><div class="act-name">Campaña pagada Meta Ads</div><div class="act-note">Requiere: promoción, productos, fechas, video o contenido</div></div><span class="freq f-p">Brief requerido</span></div>
+      <div class="act-item"><div><div class="act-name">Cotización con imprenta</div><div class="act-note">Alexander · Copitek · Color and Print</div></div><span class="freq f-p">Brief requerido</span></div>
+    </div>
+  </div>
+  <div class="info"><strong>¿Necesitas algo del área de Marketing?</strong> Ve a la pestaña <strong>"Solicitudes &amp; Brief"</strong>, llena el formulario correspondiente y se creará automáticamente un pendiente en el sistema. Recibirás confirmación con la fecha estimada de entrega.</div>
+</section>
+
+<!-- SOLICITUDES & BRIEF -->
+<section class="section" id="solicitudes">
+  <div class="sec-hd"><div><h2>Solicitudes &amp; Brief</h2><small>Llena el formulario completo. Sin información completa, la solicitud no entra a producción.</small></div><span class="tag">Formulario de solicitud</span></div>
+
+  <div class="g2" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-label">Flujo de tu Solicitud</div>
+      <div class="flow-step"><div class="flow-l"><div class="flow-n">1</div><div class="flow-ln"></div></div><div class="flow-c"><h4>Llenas el brief completo</h4><p>Toda la información requerida. Sin brief completo, la solicitud no entra a producción.</p><span class="fn">Estás aquí</span></div></div>
+      <div class="flow-step"><div class="flow-l"><div class="flow-n">2</div><div class="flow-ln"></div></div><div class="flow-c"><h4>Se registra automáticamente</h4><p>Tu solicitud aparece en el sistema al instante. Puedes ver el estado en "Estado de Solicitudes".</p></div></div>
+      <div class="flow-step"><div class="flow-l"><div class="flow-n">3</div><div class="flow-ln"></div></div><div class="flow-c"><h4>Producción</h4><p>El área trabaja tu solicitud en el tiempo acordado. Si falta información, se pausa hasta recibirla.</p></div></div>
+      <div class="flow-step" style="margin-bottom:0;"><div class="flow-l"><div class="flow-n">4</div></div><div class="flow-c" style="padding-bottom:0;"><h4>Entrega</h4><p>Aprobado → se entrega o publica. El estado cambia a Completado.</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Tiempos de Producción</div>
+      <div class="sla-row hd"><div class="sc">Tipo</div><div class="sc">Tiempo</div><div class="sc">Condición</div><div class="sc">Nota</div></div>
+      <div class="sla-row"><div class="sc">Post / Story / Banner web</div><div class="sc"><span class="sla-t">1–2 días</span></div><div class="sc">Brief completo</div><div class="sc">Sujeto a pendientes activos</div></div>
+      <div class="sla-row"><div class="sc">Carrusel (3–6 slides)</div><div class="sc"><span class="sla-t">2–3 días</span></div><div class="sc">Brief + materiales</div><div class="sc">Se pausa si falta material</div></div>
+      <div class="sla-row"><div class="sc">Campaña Meta Ads</div><div class="sc"><span class="sla-t">2–3 días</span></div><div class="sc">Brief de campaña completo</div><div class="sc">—</div></div>
+      <div class="sla-row"><div class="sc">Impresión (diseño existente)</div><div class="sc"><span class="sla-t">~8–10 días</span></div><div class="sc">Brief completo</div><div class="sc">Cotización + Finanzas + Proveedor</div></div>
+      <div class="sla-row" style="border-bottom:none;"><div class="sc">Impresión (diseño nuevo)</div><div class="sc"><span class="sla-t">~10–16 días</span></div><div class="sc">Brief + datos completos</div><div class="sc">Diseño + Cotización + Finanzas + Proveedor</div></div>
+      <div class="info"><strong>Regla base:</strong> el tiempo inicia cuando el brief está completo, no cuando se pide.</div>
+    </div>
+  </div>
+
+  <!-- BRIEF TABS -->
+  <div class="card">
+    <div class="card-label">Generador de Brief</div>
+    <div class="btab-bar">
+      <button class="btab active" onclick="showBTab('b-digital',this)">Digital / Contenido</button>
+      <button class="btab" onclick="showBTab('b-impresion',this)">Impresión Física</button>
+      <button class="btab" onclick="showBTab('b-campana',this)">Campaña Meta Ads</button>
+    </div>
+
+    <!-- DIGITAL -->
+    <div class="bsec active" id="b-digital">
+      <div class="g2">
+        <div>
+          <span class="bsec-title">¿Quién solicita?</span>
+          <div style="margin-bottom:10px;"><label class="lbl">Nombre / Área</label><input type="text" id="bd-quien" class="fi" placeholder="Ej: Gerencia / Ventas"></div>
+          <div class="g2" style="margin-bottom:10px;">
+            <div><label class="lbl">Fecha de solicitud</label><input type="date" id="bd-fsol" class="fi"></div>
+            <div><label class="lbl">Se necesita para</label><input type="date" id="bd-fent" class="fi"></div>
+          </div>
+          <span class="bsec-title">¿Qué se necesita?</span>
+          <div style="margin-bottom:10px;"><label class="lbl">Tipo de pieza</label>
+            <select id="bd-tipo" class="fi"><option>Post Instagram / Facebook</option><option>Carrusel</option><option>Stories</option><option>Banner web</option><option>Otro</option></select>
+          </div>
+          <div class="g2" style="margin-bottom:10px;">
+            <div><label class="lbl">Cantidad</label><input type="text" id="bd-cant" class="fi" placeholder="Ej: 1 post + 3 stories"></div>
+            <div><label class="lbl">Canal / Destino</label><input type="text" id="bd-canal" class="fi" placeholder="Ej: Instagram feed"></div>
+          </div>
+        </div>
+        <div>
+          <span class="bsec-title">Contenido</span>
+          <div style="margin-bottom:10px;"><label class="lbl">Producto(s) o tema</label><input type="text" id="bd-producto" class="fi" placeholder="Ej: Sofá cama Alexis, color gris"></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Precio / Promoción (si aplica)</label><input type="text" id="bd-precio" class="fi" placeholder="Ej: $4,999 · 15% de descuento"></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Mensaje o copy clave</label><textarea id="bd-texto" rows="2" class="fi" placeholder="Ej: Renueva tu sala este verano."></textarea></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Material visual disponible</label>
+            <select id="bd-material" class="fi"><option>Sí — se adjunta</option><option>No — requiero que lo gestionen</option><option>Pendiente de enviar</option></select>
+          </div>
+          <div style="margin-bottom:14px;"><label class="lbl">Observaciones adicionales</label><textarea id="bd-obs" rows="2" class="fi" placeholder="Restricciones, referencias, tono, etc."></textarea></div>
+          <button class="btn" style="width:100%;" onclick="enviarBriefDigital()">Enviar Solicitud</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPRESIÓN -->
+    <div class="bsec" id="b-impresion">
+      <div class="info" style="margin-bottom:16px;"><strong>Importante:</strong> Toda solicitud de impresión pasa por cotización con 3 proveedores y autorización de Finanzas antes de producirse. La fecha estimada se calcula automáticamente.</div>
+      <div class="g2">
+        <div>
+          <span class="bsec-title">¿Quién solicita?</span>
+          <div style="margin-bottom:10px;"><label class="lbl">Nombre / Área</label><input type="text" id="bi-quien" class="fi" placeholder="Ej: Gerencia / Ventas"></div>
+          <div style="margin-bottom:14px;"><label class="lbl">Fecha de solicitud</label><input type="date" id="bi-fsol" class="fi"></div>
+          <span class="bsec-title">Tipo de impresión</span>
+          <div style="margin-bottom:10px;"><label class="lbl">Categoría</label>
+            <select id="bi-cat" class="fi" onchange="updateImpFields()">
+              <option value="existente">Diseño existente — solo imprimir</option>
+              <option value="nuevo-pequeno">Diseño nuevo — papelería pequeña</option>
+              <option value="nuevo-mediano">Diseño nuevo — cartelería mediana</option>
+              <option value="nuevo-gran">Diseño nuevo — gran formato (lona, vinil, estireno)</option>
+            </select>
+          </div>
+          <div style="margin-bottom:10px;"><label class="lbl">Pieza específica</label><input type="text" id="bi-pieza" class="fi" placeholder="Ej: Lona fachada sucursal Zapopan"></div>
+          <div class="g2" style="margin-bottom:10px;">
+            <div><label class="lbl">Cantidad</label><input type="text" id="bi-cant" class="fi" placeholder="Ej: 200 piezas"></div>
+            <div><label class="lbl">Material deseado</label><input type="text" id="bi-material" class="fi" placeholder="Ej: Lona vinílica"></div>
+          </div>
+          <div id="bi-gran" style="display:none;">
+            <span class="bsec-title">Datos para gran formato</span>
+            <div style="margin-bottom:10px;"><label class="lbl">Sucursal donde se instala</label><input type="text" id="bi-suc" class="fi" placeholder="Ej: Zapopan / Tlaquepaque"></div>
+            <div class="g2" style="margin-bottom:10px;">
+              <div><label class="lbl">Medidas (ancho × alto)</label><input type="text" id="bi-medidas" class="fi" placeholder="Ej: 3m × 2m"></div>
+              <div><label class="lbl">¿Requiere instalación?</label><select id="bi-inst" class="fi"><option>Sí</option><option>No</option><option>Por confirmar</option></select></div>
+            </div>
+            <div style="margin-bottom:10px;"><label class="lbl">Muebles a destacar</label><textarea id="bi-muebles" rows="2" class="fi" placeholder="Ej: Sofá Alexis, Sala Fiera…"></textarea></div>
+          </div>
+        </div>
+        <div>
+          <span class="bsec-title">Contenido y mensaje</span>
+          <div style="margin-bottom:10px;"><label class="lbl">Precio / promoción a incluir</label><input type="text" id="bi-precio" class="fi" placeholder="Ej: Desde $4,999"></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Texto o mensaje principal</label><textarea id="bi-texto" rows="2" class="fi" placeholder="Ej: Muebles de calidad al mejor precio."></textarea></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Imágenes disponibles</label>
+            <select id="bi-imgs" class="fi"><option>Sí — se adjuntan</option><option>No — usar catálogo</option><option>Pendiente de enviar</option></select>
+          </div>
+          <div style="margin-bottom:14px;"><label class="lbl">Observaciones</label><textarea id="bi-obs" rows="2" class="fi" placeholder="Colores, restricciones, urgencia real…"></textarea></div>
+          <div style="border:2px solid var(--black);padding:14px;margin-bottom:14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--g400);margin-bottom:8px;">Fecha estimada de entrega</div>
+            <div id="bi-desglose" style="font-size:12px;color:var(--g600);line-height:2;"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--black);margin-top:6px;" id="bi-fecha-final">— Selecciona categoría y fecha</div>
+          </div>
+          <button class="btn" style="width:100%;" onclick="enviarBriefImpresion()">Enviar Solicitud</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAÑA -->
+    <div class="bsec" id="b-campana">
+      <div class="g2">
+        <div>
+          <span class="bsec-title">¿Quién solicita?</span>
+          <div style="margin-bottom:10px;"><label class="lbl">Nombre / Área</label><input type="text" id="bc-quien" class="fi" placeholder="Ej: Gerencia / Dirección"></div>
+          <div class="g2" style="margin-bottom:14px;">
+            <div><label class="lbl">Fecha de solicitud</label><input type="date" id="bc-fsol" class="fi"></div>
+            <div><label class="lbl">Setup requerido para</label><input type="date" id="bc-fsetup" class="fi"></div>
+          </div>
+          <span class="bsec-title">Campaña</span>
+          <div class="g2" style="margin-bottom:10px;">
+            <div><label class="lbl">Inicio</label><input type="date" id="bc-inicio" class="fi"></div>
+            <div><label class="lbl">Fin</label><input type="date" id="bc-fin" class="fi"></div>
+          </div>
+          <div style="margin-bottom:10px;"><label class="lbl">Nombre / Promoción</label><input type="text" id="bc-nombre" class="fi" placeholder="Ej: Hot Sale Mayoral 2026"></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Aplica en</label>
+            <select id="bc-alcance" class="fi"><option>Ambos (piso y web)</option><option>Solo web</option><option>Solo piso de venta</option></select>
+          </div>
+          <div style="margin-bottom:10px;"><label class="lbl">Descripción de la promoción</label><textarea id="bc-promo" rows="2" class="fi" placeholder="Ej: 20% en salas seleccionadas."></textarea></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Productos que aplican</label><textarea id="bc-productos" rows="3" class="fi" placeholder="- Sofá Cama Alexis&#10;- Sala Fiera 3 piezas"></textarea></div>
+        </div>
+        <div>
+          <span class="bsec-title">Contenido para anuncios</span>
+          <div style="margin-bottom:10px;"><label class="lbl">¿Se proporciona video?</label>
+            <select id="bc-video" class="fi" onchange="toggleVidNote()"><option>No — se requiere contenido estático</option><option>Sí — se adjunta video</option><option>Sí — video + contenido estático</option></select>
+          </div>
+          <div id="vid-note" style="display:none;margin-bottom:10px;"><label class="lbl">Notas del video</label><textarea id="bc-vidnota" rows="2" class="fi" placeholder="Ej: Horizontal 1080p, 15 seg."></textarea></div>
+          <div style="margin-bottom:10px;"><label class="lbl">Formatos necesarios</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" value="Post feed (1:1)"> Post feed</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" value="Story (9:16)"> Story</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" value="Carrusel"> Carrusel</label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" value="Banner web"> Banner web</label>
+            </div>
+          </div>
+          <div style="margin-bottom:10px;"><label class="lbl">Copy / Mensaje</label><textarea id="bc-copy" rows="2" class="fi" placeholder="Ej: Hasta 20% en salas. Del 1 al 15 de junio."></textarea></div>
+          <div class="g2" style="margin-bottom:10px;">
+            <div><label class="lbl">Presupuesto diario MXN</label><input type="text" id="bc-budget" class="fi" placeholder="Ej: $600"></div>
+            <div><label class="lbl">Objetivo</label>
+              <select id="bc-obj" class="fi"><option>Mensajes a WhatsApp</option><option>Tráfico web</option><option>Alcance</option><option>Conversiones</option></select>
+            </div>
+          </div>
+          <div style="margin-bottom:14px;"><label class="lbl">Observaciones</label><textarea id="bc-obs" rows="2" class="fi" placeholder="Restricciones, referencias, etc."></textarea></div>
+          <button class="btn" style="width:100%;" onclick="enviarBriefCampana()">Enviar Solicitud</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ESTADO DE SOLICITUDES -->
+<section class="section" id="estado">
+  <div class="sec-hd"><div><h2>Estado de Solicitudes</h2><small>Aquí puedes ver cómo va tu solicitud en tiempo real.</small></div><span class="tag">Actualización en vivo</span></div>
+  <div class="g3" style="margin-bottom:18px;">
+    <div class="card" style="text-align:center;"><div class="card-label" style="justify-content:center;">Pendientes</div><div class="stat-n" id="est-pend">—</div><div class="stat-l">por atender</div></div>
+    <div class="card" style="text-align:center;"><div class="card-label" style="justify-content:center;">En Proceso</div><div class="stat-n" id="est-prog">—</div><div class="stat-l">en producción</div></div>
+    <div class="card" style="text-align:center;"><div class="card-label" style="justify-content:center;">Completadas</div><div class="stat-n" id="est-done" style="color:var(--green);">—</div><div class="stat-l">entregadas</div></div>
+  </div>
+  <div id="estado-body"><div class="loading">Cargando solicitudes...</div></div>
+</section>
+
+</main>
+<script>
+const SUPABASE_URL='https://icynathbxulsmzvkgzse.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeW5hdGhieHVsc216dmtnenNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTUzODMsImV4cCI6MjA5NTQ5MTM4M30.W9AsPH2rzm1aZaNsKiYzcrscJ6Be0jlZq2tW11GpVmY';
+const HDR={'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'};
+
+const now=new Date();
+const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const today=now.toISOString().split('T')[0];
+document.getElementById('hd-date').textContent=`${months[now.getMonth()]} ${now.getFullYear()}`;
+['bd-fsol','bd-fent','bi-fsol','bc-fsol','bc-fsetup','bc-inicio'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=today;});
+
+function showTab(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('nav .tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');el.classList.add('active');if(id==='estado')loadEstado();}
+function showBTab(id,el){document.querySelectorAll('.bsec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.btab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');el.classList.add('active');}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+async function dbInsert(table,data){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}`,{method:'POST',headers:HDR,body:JSON.stringify(data)});
+  return r.json();
+}
+async function dbGet(table,params=''){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}&order=created_at.desc`,{headers:HDR});
+  return r.json();
+}
+
+// ── IMPRESION DATE CALC ──
+const impCfg={
+  'existente':{diseno:0,cotizacion:1,finanzas:2,proveedor:7},
+  'nuevo-pequeno':{diseno:2,cotizacion:1,finanzas:2,proveedor:5},
+  'nuevo-mediano':{diseno:3,cotizacion:1,finanzas:2,proveedor:6},
+  'nuevo-gran':{diseno:4,cotizacion:1,finanzas:2,proveedor:7}
+};
+function addWD(d,n){const date=new Date(d+'T12:00:00');let a=0;while(a<n){date.setDate(date.getDate()+1);const dw=date.getDay();if(dw!==0&&dw!==6)a++;}return date.toISOString().split('T')[0];}
+function fmtD(d){return new Date(d+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long'});}
+
+function updateImpFields(){
+  const cat=document.getElementById('bi-cat').value;
+  document.getElementById('bi-gran').style.display=cat==='nuevo-gran'?'block':'none';
+  calcImpDate();
+}
+function calcImpDate(){
+  const cat=document.getElementById('bi-cat').value;
+  const fsol=document.getElementById('bi-fsol').value;
+  if(!fsol)return;
+  const cfg=impCfg[cat];
+  let cur=fsol,steps=[];
+  if(cfg.diseno>0){const d=addWD(cur,cfg.diseno);steps.push(`Diseño: ~${cfg.diseno} días → ${fmtD(d)}`);cur=d;}
+  const dc=addWD(cur,cfg.cotizacion);steps.push(`Cotización (3 proveedores): ~${cfg.cotizacion} día → ${fmtD(dc)}`);cur=dc;
+  const df=addWD(cur,cfg.finanzas);steps.push(`Autorización Finanzas: 1–${cfg.finanzas} días → aprox. ${fmtD(df)}`);cur=df;
+  const dp=addWD(cur,cfg.proveedor);steps.push(`Elaboración proveedor: 5–${cfg.proveedor} días → aprox. ${fmtD(dp)}`);
+  document.getElementById('bi-desglose').innerHTML=steps.map(s=>`<div>→ ${s}</div>`).join('');
+  document.getElementById('bi-fecha-final').textContent=`Entrega estimada: a partir del ${fmtD(dp)}`;
+  return dp;
+}
+document.addEventListener('change',e=>{if(e.target.id==='bi-fsol'||e.target.id==='bi-cat')calcImpDate();});
+function toggleVidNote(){document.getElementById('vid-note').style.display=document.getElementById('bc-video').value.includes('Sí')?'block':'none';}
+
+// ── ENVIAR BRIEFS ──
+async function enviarBriefDigital(){
+  const quien=document.getElementById('bd-quien').value.trim();
+  const tipo=document.getElementById('bd-tipo').value;
+  const producto=document.getElementById('bd-producto').value.trim();
+  if(!quien){alert('Agrega tu nombre / área.');return;}
+  if(!producto){alert('Agrega el producto o tema.');return;}
+  const slaMap={'Post Instagram / Facebook':'1–2 días hábiles','Carrusel':'2–3 días hábiles','Stories':'1–2 días hábiles','Banner web':'1–2 días hábiles','Otro':'Por definir'};
+  const datos={tipo,cantidad:document.getElementById('bd-cant').value,canal:document.getElementById('bd-canal').value,producto,precio:document.getElementById('bd-precio').value,mensaje:document.getElementById('bd-texto').value,material:document.getElementById('bd-material').value,obs:document.getElementById('bd-obs').value,fecha_solicitud:document.getElementById('bd-fsol').value,tiempo_estimado:slaMap[tipo]||'Por definir'};
+  const r=await dbInsert('solicitudes',{descripcion:`[Digital] ${tipo} — ${producto}`,tipo:'Brief Digital',cat:'Contenido estático',prio:'Normal',fecha_entrega:document.getElementById('bd-fent').value||null,solicitante:quien,estado:'Pendiente',datos});
+  if(r&&r[0]){toast('✓ Solicitud enviada — puedes ver el estado en "Estado de Solicitudes"');['bd-quien','bd-cant','bd-canal','bd-producto','bd-precio','bd-texto','bd-obs'].forEach(id=>document.getElementById(id).value='');}
+  else{alert('Error al enviar. Intenta de nuevo.');}
+}
+
+async function enviarBriefImpresion(){
+  const quien=document.getElementById('bi-quien').value.trim();
+  const pieza=document.getElementById('bi-pieza').value.trim();
+  if(!quien){alert('Agrega tu nombre / área.');return;}
+  if(!pieza){alert('Describe la pieza a imprimir.');return;}
+  const cat=document.getElementById('bi-cat').value;
+  const fechaEnt=calcImpDate();
+  const catLabels={'existente':'Diseño existente','nuevo-pequeno':'Papelería nueva','nuevo-mediano':'Cartelería mediana','nuevo-gran':'Gran formato'};
+  const datos={categoria:catLabels[cat],pieza,cantidad:document.getElementById('bi-cant').value,material:document.getElementById('bi-material').value,precio:document.getElementById('bi-precio').value,mensaje:document.getElementById('bi-texto').value,imagenes:document.getElementById('bi-imgs').value,obs:document.getElementById('bi-obs').value,sucursal:cat==='nuevo-gran'?document.getElementById('bi-suc').value:'',medidas:cat==='nuevo-gran'?document.getElementById('bi-medidas').value:'',instalacion:cat==='nuevo-gran'?document.getElementById('bi-inst').value:''};
+  const r=await dbInsert('solicitudes',{descripcion:`[Impresión] ${catLabels[cat]} — ${pieza}`,tipo:'Brief Impresión',cat:'Diseño publicitario',prio:cat==='nuevo-gran'?'Alta':'Normal',fecha_entrega:fechaEnt||null,solicitante:quien,estado:'Pendiente',datos});
+  if(r&&r[0]){toast('✓ Solicitud de impresión enviada con fecha estimada calculada');['bi-quien','bi-pieza','bi-cant','bi-material','bi-precio','bi-texto','bi-obs'].forEach(id=>document.getElementById(id).value='');}
+  else{alert('Error al enviar. Intenta de nuevo.');}
+}
+
+async function enviarBriefCampana(){
+  const quien=document.getElementById('bc-quien').value.trim();
+  const nombre=document.getElementById('bc-nombre').value.trim();
+  if(!quien){alert('Agrega tu nombre / área.');return;}
+  if(!nombre){alert('Agrega el nombre de la campaña.');return;}
+  const formatos=Array.from(document.querySelectorAll('#b-campana input[type=checkbox]:checked')).map(i=>i.value).join(', ');
+  const datos={nombre,inicio:document.getElementById('bc-inicio').value,fin:document.getElementById('bc-fin').value,alcance:document.getElementById('bc-alcance').value,promo:document.getElementById('bc-promo').value,productos:document.getElementById('bc-productos').value,video:document.getElementById('bc-video').value,formatos,copy:document.getElementById('bc-copy').value,budget:document.getElementById('bc-budget').value,objetivo:document.getElementById('bc-obj').value,obs:document.getElementById('bc-obs').value};
+  const r=await dbInsert('solicitudes',{descripcion:`[Campaña] ${nombre}`,tipo:'Brief Campaña',cat:'Campaña Pagada',prio:'Alta',fecha_entrega:document.getElementById('bc-fsetup').value||null,solicitante:quien,estado:'Pendiente',datos});
+  if(r&&r[0]){toast('✓ Brief de campaña enviado');['bc-quien','bc-nombre','bc-promo','bc-productos','bc-copy','bc-budget','bc-obs'].forEach(id=>document.getElementById(id).value='');}
+  else{alert('Error al enviar. Intenta de nuevo.');}
+}
+
+// ── ESTADO DE SOLICITUDES ──
+async function loadEstado(){
+  const sol=await dbGet('solicitudes','select=id,descripcion,tipo,solicitante,fecha_entrega,estado,created_at');
+  if(!Array.isArray(sol)){document.getElementById('estado-body').innerHTML='<div class="loading">Error cargando solicitudes.</div>';return;}
+  document.getElementById('est-pend').textContent=sol.filter(s=>s.estado==='Pendiente').length;
+  document.getElementById('est-prog').textContent=sol.filter(s=>s.estado==='En Progreso'||s.estado==='En Revisión').length;
+  document.getElementById('est-done').textContent=sol.filter(s=>s.estado==='Completado').length;
+  if(!sol.length){document.getElementById('estado-body').innerHTML='<div class="loading">No hay solicitudes registradas aún.</div>';return;}
+  const stMap={'Pendiente':'s-pend','En Progreso':'s-prog','En Revisión':'s-warn','Completado':'s-ok'};
+  document.getElementById('estado-body').innerHTML=`<div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Solicitud</th><th>Tipo</th><th>Solicitante</th><th>Fecha entrega</th><th>Estado</th></tr></thead><tbody>${sol.map(s=>`<tr><td style="font-weight:600;max-width:220px;">${s.descripcion}</td><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--g600);">${s.tipo||'—'}</td><td style="font-size:12px;">${s.solicitante||'—'}</td><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--g400);">${s.fecha_entrega||'—'}</td><td><span class="st ${stMap[s.estado]||'s-pend'}">${s.estado}</span></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+// Auto-refresh estado cada 30 seg si está visible
+setInterval(()=>{if(document.getElementById('estado').classList.contains('active'))loadEstado();},30000);
+</script>
+</body>
+</html>
