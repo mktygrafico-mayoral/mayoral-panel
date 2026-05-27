@@ -167,7 +167,18 @@ textarea.fi{resize:vertical;line-height:1.6;}
 .obj-tpl h4{font-size:12.5px;font-weight:700;margin-bottom:3px;}
 .obj-tpl p{font-size:11px;color:var(--soft);line-height:1.5;}
 
-@media(max-width:768px){
+.btab-bar{display:flex;border-bottom:var(--border);margin-bottom:16px;}
+.btab{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:10px 14px;cursor:pointer;border:none;background:transparent;color:var(--mid);border-bottom:2px solid transparent;margin-bottom:-1px;}
+.btab.active{color:var(--ink);border-bottom:2px solid var(--ink);}
+.bsec{display:none;}.bsec.active{display:block;}
+.stat-l{font-size:11px;color:var(--mid);margin-top:4px;}
+.s-ok{background:var(--green-bg);color:var(--green);border:1px solid #b8d4b5;}
+.s-warn{background:var(--yellow-bg);color:var(--yellow);border:1px solid #e8d080;}
+.s-crit{background:var(--red-bg);color:var(--red);border:1px solid #e8b0b0;}
+.s-prog{border:1px solid var(--ink);color:var(--ink);}
+.s-pend{background:var(--ink);color:var(--paper);}
+
+/* RESPONSIVE */
   header,nav,main{padding-left:14px;padding-right:14px;}
   .g2,.g3,.g4{grid-template-columns:1fr;}
   .week-grid{grid-template-columns:repeat(4,1fr);}
@@ -221,8 +232,11 @@ textarea.fi{resize:vertical;line-height:1.6;}
   <button class="tab active" onclick="showTab('hoy',this)">Hoy &amp; Semana</button>
   <button class="tab" onclick="showTab('calendario',this)">Calendario</button>
   <button class="tab" onclick="showTab('objetivos',this)">Objetivos</button>
+  <button class="tab" onclick="showTab('pendientes',this)">Pendientes</button>
   <button class="tab" onclick="showTab('publicaciones',this)">Publicaciones</button>
   <button class="tab" onclick="showTab('metaads',this)">Meta Ads</button>
+  <button class="tab" onclick="showTab('inventario',this)">Inventario</button>
+  <button class="tab" onclick="showTab('registro',this)">Registro Silencioso</button>
   <button class="tab" onclick="showTab('cierre',this)">Cierre de Mes</button>
 </nav>
 
@@ -396,6 +410,156 @@ textarea.fi{resize:vertical;line-height:1.6;}
   </div>
 </section>
 
+<!-- ══ PENDIENTES ══ -->
+<section class="section" id="pendientes">
+  <div class="sec-hd"><div><h2>Control de <em>Pendientes</em></h2><p>Tareas propias y solicitudes. Todo en un solo lugar.</p></div><span class="chip" id="pend-mes"></span></div>
+  <div class="g3" style="margin-bottom:18px;">
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Pendientes</div><div class="bnum" id="pn-pend" style="color:var(--yellow);">0</div><div class="stat-l">por atender</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">En Progreso</div><div class="bnum" id="pn-prog">0</div><div class="stat-l">en proceso</div></div>
+    <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">Completados</div><div class="bnum" id="pn-done" style="color:var(--green);">0</div><div class="stat-l">este mes</div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div class="clabel">Nueva tarea</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;">
+      <div><label class="lbl">Descripción</label><input type="text" id="pn-desc" class="fi" placeholder="Ej: Carrusel sala Alexis para Instagram"></div>
+      <div><label class="lbl">Categoría</label>
+        <select id="pn-cat" class="fi"><option>Contenido estático</option><option>Meta Ads</option><option>Campaña Pagada</option><option>Página web</option><option>Diseño publicitario</option><option>Fotografía</option><option>Estrategia</option><option>Blog</option><option>Spotify</option><option>Pinterest</option><option>Imprenta</option><option>Cartelería</option><option>Solicitud externa</option><option>Otro</option></select>
+      </div>
+      <div><label class="lbl">Prioridad</label>
+        <select id="pn-prio" class="fi"><option>Normal</option><option>Alta</option><option>Baja</option></select>
+      </div>
+      <div><label class="lbl">Fecha de entrega</label><input type="date" id="pn-fecha" class="fi"></div>
+      <button class="btn" onclick="addPendiente()">+</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="tbl">
+      <thead><tr><th>Tarea</th><th>Categoría</th><th>Prioridad</th><th>Entrega</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="pn-body"><tr><td colspan="6" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Sin pendientes. Cargando...</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ INVENTARIO ══ -->
+<section class="section" id="inventario">
+  <div class="sec-hd"><div><h2>Inventario <em>de Impresos</em></h2><p>Stock, historial de pedidos y registro de lonas y viniles.</p></div><span class="chip">Control de materiales</span></div>
+  <div class="btab-bar" style="margin-bottom:18px;">
+    <button class="btab active" onclick="showInvTab('inv-stock',this)">Stock Actual</button>
+    <button class="btab" onclick="showInvTab('inv-pedidos',this)">Historial de Pedidos</button>
+    <button class="btab" onclick="showInvTab('inv-lonas',this)">Lonas &amp; Viniles</button>
+  </div>
+
+  <!-- STOCK -->
+  <div class="bsec active" id="inv-stock">
+    <div class="g3" style="margin-bottom:16px;">
+      <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">✓ Ok</div><div class="bnum" id="sk-ok" style="color:var(--green);">0</div><div class="stat-l">materiales</div></div>
+      <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">⚠ Reabastecer</div><div class="bnum" id="sk-warn" style="color:var(--yellow);">0</div><div class="stat-l">por pedir pronto</div></div>
+      <div class="card" style="text-align:center;"><div class="clabel" style="justify-content:center;">⚑ Crítico</div><div class="bnum" id="sk-crit" style="color:var(--red);">0</div><div class="stat-l">pedir ya</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="clabel">Agregar / actualizar material</div>
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 0.8fr 0.8fr 0.8fr 0.8fr auto;gap:10px;align-items:end;">
+        <div><label class="lbl">Material</label><select id="sk-mat" class="fi"><option>Tarjetas de presentación</option><option>Etiquetas de cojines</option><option>Notas de seguimiento</option><option>Etiquetas de muebles</option><option>Otro</option></select></div>
+        <div><label class="lbl">Vendedor / Sucursal</label><input type="text" id="sk-quien" class="fi" placeholder="Ej: Carlos / Suc. Zapopan"></div>
+        <div><label class="lbl">Stock actual</label><input type="number" id="sk-actual" class="fi" placeholder="80" min="0"></div>
+        <div><label class="lbl">Punto reorden</label><input type="number" id="sk-reorden" class="fi" placeholder="100" min="0"></div>
+        <div><label class="lbl">Mínimo crítico</label><input type="number" id="sk-critico" class="fi" placeholder="50" min="0"></div>
+        <div><label class="lbl">Unidad</label><select id="sk-unidad" class="fi"><option>piezas</option><option>juegos</option><option>rollos</option><option>paquetes</option></select></div>
+        <button class="btn" onclick="addStock()">+</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl"><thead><tr><th>Material</th><th>Vendedor / Sucursal</th><th>Stock actual</th><th>Reorden</th><th>Mínimo crítico</th><th>Estado</th><th>Actualización</th><th></th></tr></thead>
+      <tbody id="sk-body"><tr><td colspan="8" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Cargando...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- PEDIDOS -->
+  <div class="bsec" id="inv-pedidos">
+    <div class="card" style="margin-bottom:14px;">
+      <div class="clabel">Registrar pedido</div>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 0.7fr 0.7fr 1fr 1fr auto;gap:10px;align-items:end;">
+        <div><label class="lbl">Material</label><select id="hp-mat" class="fi"><option>Tarjetas de presentación</option><option>Etiquetas de cojines</option><option>Notas de seguimiento</option><option>Etiquetas de muebles</option><option>Otro</option></select></div>
+        <div><label class="lbl">Destino</label><input type="text" id="hp-dest" class="fi" placeholder="Ej: Carlos / Todas las sucursales"></div>
+        <div><label class="lbl">Cantidad</label><input type="text" id="hp-cant" class="fi" placeholder="1,000"></div>
+        <div><label class="lbl">Proveedor</label><select id="hp-prov" class="fi"><option>Alexander</option><option>Copitek</option><option>Color and Print</option><option>Otro</option></select></div>
+        <div><label class="lbl">Fecha pedido</label><input type="date" id="hp-fecha" class="fi"></div>
+        <div><label class="lbl">Entrega real</label><input type="date" id="hp-entrega" class="fi"></div>
+        <button class="btn" onclick="addPedido()">+</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">
+        <div><label class="lbl">Costo total (MXN)</label><input type="text" id="hp-costo" class="fi" placeholder="$850"></div>
+        <div><label class="lbl">Estado</label><select id="hp-estado" class="fi"><option>En cotización</option><option>En aprobación (Finanzas)</option><option>En producción</option><option>Entregado</option></select></div>
+        <div><label class="lbl">Observaciones</label><input type="text" id="hp-obs" class="fi" placeholder="Ej: Pedido de urgencia"></div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl"><thead><tr><th>Material</th><th>Destino</th><th>Cantidad</th><th>Proveedor</th><th>Fecha pedido</th><th>Entrega</th><th>Costo</th><th>Estado</th><th></th></tr></thead>
+      <tbody id="hp-body"><tr><td colspan="9" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Cargando...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- LONAS -->
+  <div class="bsec" id="inv-lonas">
+    <div class="g3" style="margin-bottom:14px;">
+      <div class="card" style="border-left:3px solid var(--ink);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Exterior · Sol directo</div><div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;">6–8 <span style="font-size:13px;font-weight:400;">meses</span></div><div style="font-size:11px;color:var(--soft);margin-top:4px;">Máxima degradación UV</div></div>
+      <div class="card" style="border-left:3px solid var(--mid);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Exterior · Con sombra</div><div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;">10–14 <span style="font-size:13px;font-weight:400;">meses</span></div><div style="font-size:11px;color:var(--soft);margin-top:4px;">Menor exposición UV</div></div>
+      <div class="card" style="border-left:3px solid var(--cream);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mid);margin-bottom:6px;">Interior</div><div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;">18–30 <span style="font-size:13px;font-weight:400;">meses</span></div><div style="font-size:11px;color:var(--soft);margin-top:4px;">Cambio por contenido, no deterioro</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="clabel">Registrar lona o vinil</div>
+      <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label class="lbl">Descripción</label><input type="text" id="lv-desc" class="fi" placeholder="Ej: Lona fachada principal"></div>
+        <div><label class="lbl">Sucursal</label><input type="text" id="lv-suc" class="fi" placeholder="Ej: Zapopan"></div>
+        <div><label class="lbl">Exposición</label><select id="lv-expo" class="fi" onchange="autoRevDate()"><option value="exterior-sol">Exterior · Sol directo</option><option value="exterior-sombra">Exterior · Con sombra</option><option value="interior">Interior</option></select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label class="lbl">Tipo</label><select id="lv-tipo" class="fi"><option>Lona</option><option>Vinil</option><option>Estireno</option><option>Acrílico</option><option>Trovicel</option><option>Otro</option></select></div>
+        <div><label class="lbl">Medidas</label><input type="text" id="lv-medidas" class="fi" placeholder="3m × 2m"></div>
+        <div><label class="lbl">Proveedor</label><select id="lv-prov" class="fi"><option>Alexander</option><option>Copitek</option><option>Color and Print</option><option>Otro</option></select></div>
+        <div><label class="lbl">Costo (MXN)</label><input type="text" id="lv-costo" class="fi" placeholder="$1,200"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div><label class="lbl">Fecha instalación</label><input type="date" id="lv-inst" class="fi" onchange="autoRevDate()"></div>
+        <div><label class="lbl">Revisión estimada</label><input type="date" id="lv-rev" class="fi"><p style="font-size:10px;color:var(--mid);margin-top:2px;">Calculada automáticamente</p></div>
+        <div><label class="lbl">Estado físico</label><select id="lv-estado" class="fi"><option>Bueno</option><option>Desgastado</option><option>Dañado</option><option>Reemplazado</option></select></div>
+        <div><label class="lbl">Contenido</label><select id="lv-contenido" class="fi"><option value="promo-precio">Promo con precio</option><option value="producto-activo">Producto activo</option><option value="marca-imagen">Imagen de marca</option><option value="temporada">Temporada</option></select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;">
+        <div><label class="lbl">Vigencia del contenido</label><input type="date" id="lv-vigencia" class="fi"></div>
+        <div><label class="lbl">Producto activo</label><select id="lv-prod-activo" class="fi"><option>Sí — en catálogo</option><option>No — descontinuado</option><option>Por confirmar</option></select></div>
+        <div><label class="lbl">Observaciones</label><input type="text" id="lv-obs" class="fi" placeholder="Ej: Parche de precio aplicado"></div>
+        <button class="btn" onclick="addLona()">+</button>
+      </div>
+    </div>
+    <div id="lv-alertas" style="margin-bottom:14px;"></div>
+    <div style="overflow-x:auto;">
+      <table class="tbl"><thead><tr><th>Material</th><th>Sucursal</th><th>Exposición</th><th>Medidas</th><th>Instalación</th><th>Revisión</th><th>Vigencia</th><th>Estado</th><th>Alerta</th><th></th></tr></thead>
+      <tbody id="lv-body"><tr><td colspan="10" style="text-align:center;color:var(--mid);font-family:'DM Mono',monospace;font-size:11px;padding:20px;">Cargando...</td></tr></tbody></table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REGISTRO SILENCIOSO ══ -->
+<section class="section" id="registro">
+  <div class="sec-hd"><div><h2>Registro <em>Silencioso</em></h2><p>Iniciativas que probé. Solo para mí — hasta que decida mostrarlo.</p></div><span class="chip">Privado</span></div>
+  <div class="card" style="margin-bottom:18px;">
+    <div class="clabel">Nueva iniciativa</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div><label class="lbl">Mes</label><input type="text" id="rs-mes" class="fi" placeholder="Ej: Mayo"></div>
+      <div><label class="lbl">Resultado clave</label><input type="text" id="rs-res" class="fi" placeholder="Ej: +18% alcance orgánico"></div>
+    </div>
+    <div style="margin-bottom:10px;"><label class="lbl">¿Qué probé?</label><input type="text" id="rs-tit" class="fi" placeholder="Describe la iniciativa en una línea"></div>
+    <div style="margin-bottom:14px;"><label class="lbl">Cómo la ejecuté / qué aprendí</label><textarea id="rs-nota" rows="3" class="fi" placeholder="Detalla lo que hiciste diferente y qué observaste…"></textarea></div>
+    <button class="btn" onclick="addRegistro()">Registrar Iniciativa</button>
+  </div>
+  <div id="rs-list"><div style="padding:20px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);">Cargando...</div></div>
+  <div style="margin-top:32px;border-top:2px solid var(--ink);padding-top:16px;display:flex;justify-content:space-between;align-items:flex-end;">
+    <div><div style="font-family:'Fraunces',serif;font-size:16px;font-weight:700;">Elías</div><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mid);margin-top:4px;">Contenido Digital &amp; Social Media · Muebles Mayoral</div></div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);" id="rs-fecha"></div>
+  </div>
+</section>
+
 <!-- ══ CIERRE DE MES ══ -->
 <section class="section" id="cierre">
   <div class="sec-hd"><div><h2>Cierre <em>de Mes</em></h2><p>Resumen ejecutivo para tu rendición de cuentas mensual.</p></div><span class="chip" id="cierre-mes"></span></div>
@@ -439,7 +603,208 @@ async function dbInsert(table,data){const r=await fetch(`${SUPABASE_URL}/rest/v1
 async function dbUpdate(table,id,data){const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:HDR,body:JSON.stringify(data)});return r.json();}
 async function dbDelete(table,id){await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:HDR});}
 
-// ── SYNC: Load solicitudes from Supabase into local array ──
+// ── INV TAB ──
+function showInvTab(id,el){
+  document.querySelectorAll('#inventario .bsec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('#inventario .btab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── PENDIENTES ──
+async function loadPendientes(){
+  const data=await dbGet('pendientes');
+  if(!Array.isArray(data)){return;}
+  const today=now.toISOString().split('T')[0];
+  const stMap={'Pendiente':'s-pend','En Progreso':'s-prog','En Revisión':'s-warn','Completado':'s-ok'};
+  document.getElementById('pn-pend').textContent=data.filter(p=>p.estado==='Pendiente').length;
+  document.getElementById('pn-prog').textContent=data.filter(p=>p.estado==='En Progreso'||p.estado==='En Revisión').length;
+  document.getElementById('pn-done').textContent=data.filter(p=>p.estado==='Completado').length;
+  const body=document.getElementById('pn-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin pendientes registrados.</td></tr>';return;}
+  body.innerHTML=data.map(p=>{
+    const venc=p.fecha_entrega&&p.fecha_entrega<today&&p.estado!=='Completado';
+    const prioIcon=p.prio==='Alta'?'▲ ':p.prio==='Baja'?'▽ ':'';
+    return `<tr>
+      <td style="font-weight:600;max-width:220px;">${p.descripcion}</td>
+      <td style="font-size:11.5px;color:var(--soft);">${p.cat||'—'}</td>
+      <td style="font-size:12px;">${prioIcon}${p.prio||'Normal'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;${venc?'color:var(--red);font-weight:700;':''}">${p.fecha_entrega||'—'}${venc?' ⚑':''}</td>
+      <td><select onchange="updatePendiente(${p.id},this.value)" style="border:var(--border);background:var(--paper);font-family:'DM Mono',monospace;font-size:9px;padding:3px 6px;cursor:pointer;appearance:none;">
+        <option ${p.estado==='Pendiente'?'selected':''}>Pendiente</option>
+        <option ${p.estado==='En Progreso'?'selected':''}>En Progreso</option>
+        <option ${p.estado==='En Revisión'?'selected':''}>En Revisión</option>
+        <option ${p.estado==='Completado'?'selected':''}>Completado</option>
+      </select></td>
+      <td><button class="btn-sm" onclick="deletePendiente(${p.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+async function addPendiente(){
+  const desc=document.getElementById('pn-desc').value.trim();
+  if(!desc){alert('Agrega una descripción.');return;}
+  await dbInsert('pendientes',{descripcion:desc,cat:document.getElementById('pn-cat').value,prio:document.getElementById('pn-prio').value,fecha_entrega:document.getElementById('pn-fecha').value||null,estado:'Pendiente',tipo:'Manual'});
+  document.getElementById('pn-desc').value='';
+  loadPendientes();toast('✓ Pendiente guardado');
+}
+async function updatePendiente(id,estado){await dbUpdate('pendientes',id,{estado});loadPendientes();}
+async function deletePendiente(id){await dbDelete('pendientes',id);loadPendientes();}
+
+// ── STOCK ──
+async function loadStock(){
+  const data=await dbGet('stock');
+  if(!Array.isArray(data))return;
+  const ok=data.filter(s=>s.actual>s.reorden).length;
+  const warn=data.filter(s=>s.actual<=s.reorden&&s.actual>s.critico).length;
+  const crit=data.filter(s=>s.actual<=s.critico).length;
+  document.getElementById('sk-ok').textContent=ok;
+  document.getElementById('sk-warn').textContent=warn;
+  document.getElementById('sk-crit').textContent=crit;
+  const body=document.getElementById('sk-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin materiales registrados.</td></tr>';return;}
+  body.innerHTML=data.map(s=>{
+    const estLabel=s.actual<=s.critico?'⚑ Crítico':s.actual<=s.reorden?'⚠ Reabastecer':'✓ Ok';
+    const estCls=s.actual<=s.critico?'s-crit':s.actual<=s.reorden?'s-warn':'s-ok';
+    const col=s.actual<=s.critico?'var(--red)':s.actual<=s.reorden?'var(--yellow)':'var(--green)';
+    return `<tr>
+      <td style="font-weight:600;">${s.material}</td>
+      <td>${s.quien||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${col};">${s.actual} <span style="font-size:10px;font-weight:400;color:var(--mid);">${s.unidad}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--soft);">${s.reorden}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--soft);">${s.critico}</td>
+      <td><span class="st ${estCls}">${estLabel}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${s.fecha_actualizacion||'—'}</td>
+      <td><button class="btn-sm" onclick="deleteStock(${s.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+async function addStock(){
+  const mat=document.getElementById('sk-mat').value;
+  const actual=parseFloat(document.getElementById('sk-actual').value);
+  if(isNaN(actual)){alert('Ingresa el stock actual.');return;}
+  await dbInsert('stock',{material:mat,quien:document.getElementById('sk-quien').value,actual,reorden:parseFloat(document.getElementById('sk-reorden').value)||0,critico:parseFloat(document.getElementById('sk-critico').value)||0,unidad:document.getElementById('sk-unidad').value,fecha_actualizacion:now.toISOString().split('T')[0]});
+  ['sk-quien','sk-actual','sk-reorden','sk-critico'].forEach(id=>document.getElementById(id).value='');
+  loadStock();toast('✓ Stock guardado');
+}
+async function deleteStock(id){await dbDelete('stock',id);loadStock();}
+
+// ── PEDIDOS ──
+async function loadPedidos(){
+  const data=await dbGet('pedidos');
+  if(!Array.isArray(data))return;
+  const body=document.getElementById('hp-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin pedidos registrados.</td></tr>';return;}
+  const stMap={'En cotización':'s-pend','En aprobación (Finanzas)':'s-warn','En producción':'s-prog','Entregado':'s-ok'};
+  body.innerHTML=data.map(p=>`<tr>
+    <td style="font-weight:600;">${p.material}</td>
+    <td style="font-size:12px;">${p.destino||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.cantidad||'—'}</td>
+    <td style="font-size:12px;">${p.proveedor||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${p.fecha_pedido||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${p.fecha_entrega||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px;">${p.costo||'—'}</td>
+    <td><span class="st ${stMap[p.estado]||'s-pend'}">${p.estado}</span></td>
+    <td><button class="btn-sm" onclick="deletePedido(${p.id})">✕</button></td>
+  </tr>`).join('');
+}
+async function addPedido(){
+  const dest=document.getElementById('hp-dest').value.trim();
+  const cant=document.getElementById('hp-cant').value.trim();
+  if(!dest||!cant){alert('Agrega destino y cantidad.');return;}
+  await dbInsert('pedidos',{material:document.getElementById('hp-mat').value,destino:dest,cantidad:cant,proveedor:document.getElementById('hp-prov').value,fecha_pedido:document.getElementById('hp-fecha').value||null,fecha_entrega:document.getElementById('hp-entrega').value||null,costo:document.getElementById('hp-costo').value,estado:document.getElementById('hp-estado').value,obs:document.getElementById('hp-obs').value});
+  ['hp-dest','hp-cant','hp-costo','hp-obs'].forEach(id=>document.getElementById(id).value='');
+  loadPedidos();toast('✓ Pedido registrado');
+}
+async function deletePedido(id){await dbDelete('pedidos',id);loadPedidos();}
+
+// ── LONAS ──
+const expoMeses={'exterior-sol':{min:6,max:8},'exterior-sombra':{min:10,max:14},'interior':{min:18,max:30}};
+const expoLabel={'exterior-sol':'Exterior · Sol directo','exterior-sombra':'Exterior · Con sombra','interior':'Interior'};
+function addWDlona(d,n){const date=new Date(d+'T12:00:00');let a=0;while(a<n){date.setDate(date.getDate()+1);const dw=date.getDay();if(dw!==0&&dw!==6)a++;}return date.toISOString().split('T')[0];}
+function autoRevDate(){
+  const inst=document.getElementById('lv-inst').value;
+  const expo=document.getElementById('lv-expo').value;
+  if(!inst||!expo)return;
+  const cfg=expoMeses[expo];
+  const meses=Math.round((cfg.min+cfg.max)/2);
+  const d=new Date(inst+'T12:00:00');
+  d.setMonth(d.getMonth()+meses);
+  document.getElementById('lv-rev').value=d.toISOString().split('T')[0];
+}
+async function loadLonas(){
+  const data=await dbGet('lonas');
+  if(!Array.isArray(data))return;
+  const today=now.toISOString().split('T')[0];
+  // Alertas
+  const criticas=[];const avisos=[];
+  data.forEach(l=>{
+    if(l.fecha_rev&&l.fecha_rev<today) criticas.push(`${l.descripcion} · ${l.sucursal} — Revisión física vencida`);
+    if(l.vigencia&&l.vigencia<today) criticas.push(`${l.descripcion} · ${l.sucursal} — Contenido vencido`);
+    if(l.estado==='Dañado') criticas.push(`${l.descripcion} · ${l.sucursal} — Estado: Dañado`);
+    if(l.estado==='Desgastado') avisos.push(`${l.descripcion} · ${l.sucursal} — Estado: Desgastado`);
+    if(l.producto_activo==='No — descontinuado') criticas.push(`${l.descripcion} · ${l.sucursal} — Producto descontinuado`);
+  });
+  const alertEl=document.getElementById('lv-alertas');
+  if(criticas.length||avisos.length){
+    alertEl.innerHTML=`${criticas.length?`<div style="border:2px solid var(--red);padding:12px 16px;margin-bottom:8px;background:var(--red-bg);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;">⚑ Acción requerida (${criticas.length})</div>${criticas.map(a=>`<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #fcc;">${a}</div>`).join('')}</div>`:''}${avisos.length?`<div style="border:1px solid #c8a800;padding:12px 16px;background:var(--yellow-bg);"><div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--yellow);margin-bottom:8px;">⚠ Atención próxima (${avisos.length})</div>${avisos.map(a=>`<div style="font-size:12px;padding:3px 0;">${a}</div>`).join('')}</div>`:''}`;}
+  else alertEl.innerHTML='';
+  const body=document.getElementById('lv-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--mid);font-family:\'DM Mono\',monospace;font-size:11px;padding:20px;">Sin lonas registradas.</td></tr>';return;}
+  const estCls={'Bueno':'s-ok','Desgastado':'s-warn','Dañado':'s-crit','Reemplazado':'s-prog'};
+  const ctLabel={'promo-precio':'Promo c/ precio','producto-activo':'Producto activo','marca-imagen':'Imagen de marca','temporada':'Temporada'};
+  body.innerHTML=data.map(l=>{
+    const revVenc=l.fecha_rev&&l.fecha_rev<today;
+    const vigVenc=l.vigencia&&l.vigencia<today;
+    const hasCrit=revVenc||vigVenc||l.estado==='Dañado'||l.producto_activo==='No — descontinuado';
+    const hasWarn=l.estado==='Desgastado';
+    const alertBadge=hasCrit?`<span class="st s-crit">⚑ Acción</span>`:hasWarn?`<span class="st s-warn">⚠ Aviso</span>`:`<span class="st s-ok">✓ Ok</span>`;
+    return `<tr>
+      <td style="font-weight:600;max-width:140px;">${l.descripcion}<div style="font-size:10px;color:var(--mid);font-family:'DM Mono',monospace;">${l.proveedor||''} · ${l.costo||''}</div></td>
+      <td style="font-size:12px;">${l.sucursal||'—'}</td>
+      <td style="font-size:11px;color:var(--soft);">${expoLabel[l.expo]||l.expo||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--soft);">${l.medidas||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);">${l.fecha_inst||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:10px;${revVenc?'color:var(--red);font-weight:700;':''}">${l.fecha_rev||'—'}</td>
+      <td><div style="font-size:11px;font-weight:500;">${ctLabel[l.contenido]||l.contenido||'—'}</div>${l.vigencia?`<div style="font-family:'DM Mono',monospace;font-size:10px;${vigVenc?'color:var(--red);font-weight:700;':''}">Hasta: ${l.vigencia}</div>`:''}</td>
+      <td><span class="st ${estCls[l.estado]||'s-ok'}">${l.estado}</span></td>
+      <td>${alertBadge}</td>
+      <td><button class="btn-sm" onclick="deleteLona(${l.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+async function addLona(){
+  const desc=document.getElementById('lv-desc').value.trim();
+  const suc=document.getElementById('lv-suc').value.trim();
+  if(!desc||!suc){alert('Agrega descripción y sucursal.');return;}
+  await dbInsert('lonas',{descripcion:desc,sucursal:suc,expo:document.getElementById('lv-expo').value,tipo:document.getElementById('lv-tipo').value,medidas:document.getElementById('lv-medidas').value,proveedor:document.getElementById('lv-prov').value,costo:document.getElementById('lv-costo').value,fecha_inst:document.getElementById('lv-inst').value||null,fecha_rev:document.getElementById('lv-rev').value||null,estado:document.getElementById('lv-estado').value,contenido:document.getElementById('lv-contenido').value,vigencia:document.getElementById('lv-vigencia').value||null,producto_activo:document.getElementById('lv-prod-activo').value,obs:document.getElementById('lv-obs').value});
+  ['lv-desc','lv-suc','lv-medidas','lv-costo','lv-obs','lv-rev','lv-vigencia'].forEach(id=>document.getElementById(id).value='');
+  loadLonas();toast('✓ Lona registrada');
+}
+async function deleteLona(id){await dbDelete('lonas',id);loadLonas();}
+
+// ── REGISTRO SILENCIOSO ──
+document.getElementById('rs-fecha').textContent=curMonth;
+async function loadRegistro(){
+  const data=await dbGet('registro_silencioso');
+  if(!Array.isArray(data))return;
+  const list=document.getElementById('rs-list');
+  if(!data.length){list.innerHTML='<div style="padding:20px 0;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--mid);">Sin iniciativas registradas aún.</div>';return;}
+  list.innerHTML=data.map(e=>`<div style="border:var(--border);padding:16px 20px;margin-bottom:10px;display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:start;">
+    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--cream);line-height:1;">${(e.mes||'?').substring(0,3).toUpperCase()}<span style="display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--mid);font-weight:400;text-transform:uppercase;margin-top:2px;">${now.getFullYear()}</span></div>
+    <div><h4 style="font-size:13px;font-weight:700;margin-bottom:3px;">${e.titulo}</h4><p style="font-size:12px;color:var(--soft);line-height:1.6;">${e.notas||'Sin notas adicionales.'}</p></div>
+    <div style="text-align:right;"><div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:500;">${e.resultado||'—'}</div><div style="font-size:10px;color:var(--mid);margin-top:2px;">resultado</div><button class="btn-sm" onclick="deleteRegistro(${e.id})" style="margin-top:8px;display:block;">Borrar</button></div>
+  </div>`).join('');
+}
+async function addRegistro(){
+  const tit=document.getElementById('rs-tit').value.trim();
+  if(!tit){alert('Agrega el nombre de la iniciativa.');return;}
+  await dbInsert('registro_silencioso',{mes:document.getElementById('rs-mes').value.trim()||curMonth,titulo:tit,notas:document.getElementById('rs-nota').value,resultado:document.getElementById('rs-res').value});
+  ['rs-mes','rs-tit','rs-nota','rs-res'].forEach(id=>document.getElementById(id).value='');
+  loadRegistro();toast('✓ Iniciativa registrada');
+}
+async function deleteRegistro(id){await dbDelete('registro_silencioso',id);loadRegistro();}
+
+// ── SHOW TAB (updated to load data) ──
 async function syncSolicitudes(){
   const data=await dbGet('solicitudes','select=id,descripcion,tipo,solicitante,fecha_entrega,estado,created_at');
   if(!Array.isArray(data))return;
@@ -487,6 +852,9 @@ function showTab(id,el){
   el.classList.add('active');
   if(id==='calendario') renderCal();
   if(id==='cierre') updateCierreAuto();
+  if(id==='pendientes') loadPendientes();
+  if(id==='inventario'){loadStock();loadPedidos();loadLonas();}
+  if(id==='registro') loadRegistro();
   updateSummary();
 }
 
@@ -1030,8 +1398,10 @@ updateSummary();
 // Sync with Supabase
 syncSolicitudes();
 syncPubs();
+loadPendientes();
+loadRegistro();
 // Auto-refresh every 30 seconds
-setInterval(()=>{syncSolicitudes();updateSummary();updateCierreAuto();},30000);
+setInterval(()=>{syncSolicitudes();loadPendientes();updateSummary();updateCierreAuto();},30000);
 </script>
 </body>
 </html>
