@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mi Dashboard · Elías</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mayoral">
+<meta name="theme-color" content="#0f0e0c">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -179,11 +185,25 @@ textarea.fi{resize:vertical;line-height:1.6;}
 .s-pend{background:var(--ink);color:var(--paper);}
 
 /* RESPONSIVE */
+@media(max-width:768px){
   header,nav,main{padding-left:14px;padding-right:14px;}
-  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .g2,.g3,.g4{grid-template-columns:1fr 1fr;}
   .week-grid{grid-template-columns:repeat(4,1fr);}
   .cal-grid{grid-template-columns:repeat(7,1fr);}
-  .cal-cell{min-height:60px;}
+  .cal-cell{min-height:55px;padding:4px;}
+  .cal-dnum{font-size:13px;}
+  .cal-event{font-size:8px;padding:1px 3px;}
+  nav{padding:0 8px;}
+  .tab{padding:11px 10px;font-size:9px;}
+  .hd-title{font-size:22px;}
+  header::after{display:none;}
+  .arow{grid-template-columns:1fr 1fr 1fr;}
+  .arow .ac:nth-child(n+4){display:none;}
+}
+@media(max-width:480px){
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .week-grid{grid-template-columns:repeat(3,1fr);}
+  .bnum{font-size:36px;}
 }
 </style>
 </head>
@@ -258,7 +278,9 @@ textarea.fi{resize:vertical;line-height:1.6;}
   <!-- WEEK -->
   <div class="card" style="margin-bottom:18px;">
     <div class="clabel" style="margin-bottom:14px;">Próximos 7 días <span style="margin-left:8px;font-size:9px;color:var(--soft);">— Click en cualquier día para agregar tarea</span></div>
-    <div class="week-grid" id="week-grid"></div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;">
+      <div class="week-grid" id="week-grid" style="min-width:560px;"></div>
+    </div>
   </div>
 
   <!-- TAREAS FIJAS + URGENTES -->
@@ -593,6 +615,22 @@ textarea.fi{resize:vertical;line-height:1.6;}
 
 </main>
 <script>
+// ── GLOBALS FIRST (needed by all functions) ──
+const now = new Date();
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const DAYS_S = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const today = now.toISOString().split('T')[0];
+const curMonth = MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+let calYear = now.getFullYear();
+let calMonth = now.getMonth();
+let userEvents = [];
+let publicaciones = [];
+let objetivos = [];
+let adsEntries = [];
+let solicitudes = [];
+let modalDate = null;
+
 // ── SUPABASE ──
 const SUPABASE_URL='https://icynathbxulsmzvkgzse.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeW5hdGhieHVsc216dmtnenNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTUzODMsImV4cCI6MjA5NTQ5MTM4M30.W9AsPH2rzm1aZaNsKiYzcrscJ6Be0jlZq2tW11GpVmY';
@@ -820,23 +858,6 @@ async function syncPubs(){
   data.forEach(d=>{publicaciones.push({id:d.id,desc:d.descripcion,tipo:d.tipo,canal:d.canal,pilar:d.pilar,fecha:d.fecha,estado:d.estado,alcance:d.alcance||'—',inter:d.interacciones||'—',fromDB:true});});
   renderPubs();
 }
-
-// ── GLOBALS ──
-const now = new Date();
-const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-const DAYS_S = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const today = now.toISOString().split('T')[0];
-const curMonth = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-
-let calYear = now.getFullYear();
-let calMonth = now.getMonth();
-let userEvents = []; // {id, fecha, texto, tipo, estado, done}
-let publicaciones = [];
-let objetivos = [];
-let adsEntries = [];
-let solicitudes = [];
-let modalDate = null;
 
 // ── INIT ──
 document.getElementById('hd-hoy').textContent = `${DAYS[now.getDay()]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
@@ -1388,20 +1409,65 @@ function copiarCierre(){
 }
 
 // ── INIT RENDERS ──
-buildWeekGrid();
-buildChecklistHoy();
-renderCal();
-renderObjetivos();
-renderPubs();
-renderAds();
-updateSummary();
-// Sync with Supabase
-syncSolicitudes();
-syncPubs();
-loadPendientes();
-loadRegistro();
-// Auto-refresh every 30 seconds
-setInterval(()=>{syncSolicitudes();loadPendientes();updateSummary();updateCierreAuto();},30000);
+function initAll(){
+  buildWeekGrid();
+  buildChecklistHoy();
+  renderCal();
+  renderObjetivos();
+  renderPubs();
+  renderAds();
+  updateSummary();
+  // Sync with Supabase
+  syncSolicitudes();
+  syncPubs();
+  loadPendientes();
+  loadRegistro();
+  // Auto-refresh every 30 seconds
+  setInterval(()=>{syncSolicitudes();loadPendientes();updateSummary();updateCierreAuto();},30000);
+}
+// ── PWA: Service Worker + Notificaciones ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      if('Notification' in window && Notification.permission === 'default'){
+        setTimeout(async () => {
+          const perm = await Notification.requestPermission();
+          if(perm === 'granted') toast('✓ Notificaciones activadas');
+        }, 3000);
+      }
+    } catch(e){ console.log('SW error:', e); }
+  });
+}
+
+// Use setTimeout to ensure DOM fully painted on mobile
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(initAll,150));
+}else{
+  setTimeout(initAll,150);
+}
+
+// ── SUPABASE REALTIME: poll for new solicitudes every 60s ──
+let lastSolicitudId = null;
+async function pollNuevasSolicitudes(){
+  try {
+    const data = await dbGet('solicitudes', 'estado=eq.Pendiente&limit=1');
+    if(Array.isArray(data) && data.length > 0){
+      const newest = data[0];
+      if(lastSolicitudId && newest.id !== lastSolicitudId && Notification.permission === 'granted'){
+        new Notification('Nueva solicitud — Muebles Mayoral', {
+          body: (newest.solicitante || 'Alguien') + ' solicitó: ' + newest.descripcion,
+          icon: 'icon-192.png'
+        });
+        toast('🔔 Nueva solicitud de ' + (newest.solicitante || 'alguien'));
+      }
+      lastSolicitudId = newest.id;
+    }
+  } catch(e){}
+}
+// Start polling after 5 seconds, then every 60 seconds
+setTimeout(() => { pollNuevasSolicitudes(); setInterval(pollNuevasSolicitudes, 60000); }, 5000);
+
 </script>
 </body>
 </html>
